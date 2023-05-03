@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chisel3.iml" filepath="$PROJECT_DIR$/.idea/modules/chisel3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chiselFrontend.iml" filepath="$PROJECT_DIR$/.idea/modules/chiselFrontend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/coreMacros.iml" filepath="$PROJECT_DIR$/.idea/modules/coreMacros.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/fpgaShells.iml" filepath="$PROJECT_DIR$/.idea/modules/fpgaShells.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/freedom.iml" filepath="$PROJECT_DIR$/.idea/modules/freedom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/freedom-build.iml" filepath="$PROJECT_DIR$/.idea/modules/freedom-build.iml" group="sbt-build-modules" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hardfloat.iml" filepath="$PROJECT_DIR$/.idea/modules/hardfloat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/macros.iml" filepath="$PROJECT_DIR$/.idea/modules/macros.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nvdlaBlocks.iml" filepath="$PROJECT_DIR$/.idea/modules/nvdlaBlocks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rocketchip.iml" filepath="$PROJECT_DIR$/.idea/modules/rocketchip.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rocketchip-build.iml" filepath="$PROJECT_DIR$/.idea/modules/rocketchip-build.iml" group="sbt-build-modules" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sifiveBlocks.iml" filepath="$PROJECT_DIR$/.idea/modules/sifiveBlocks.iml" />
+    </modules>
+  </component>
+</project>

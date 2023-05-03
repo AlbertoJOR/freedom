@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/fpga-shells" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nvidia-dla-blocks" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nvidia-dla-blocks/hw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/chisel3" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/firrtl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/hardfloat" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-fesvr" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-gnu-toolchain" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-gnu-toolchain/riscv-binutils-gdb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-gnu-toolchain/riscv-dejagnu" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-gnu-toolchain/riscv-glibc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-gnu-toolchain/riscv-newlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-isa-sim" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-opcodes" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-openocd" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-openocd/jimtcl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-pk" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-tests" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/riscv-tools/riscv-tests/env" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rocket-chip/torture" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sifive-blocks" vcs="Git" />
+  </component>
+</project>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaSbtSettings">
+    <option name="linkedExternalProjectsSettings">
+      <SbtProjectSettings>
+        <option name="converterVersion" value="1" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/fpga-shells" />
+            <option value="$PROJECT_DIR$/nvidia-dla-blocks" />
+            <option value="$PROJECT_DIR$/project" />
+            <option value="$PROJECT_DIR$/rocket-chip" />
+            <option value="$PROJECT_DIR$/rocket-chip/chisel3" />
+            <option value="$PROJECT_DIR$/rocket-chip/chisel3/chiselFrontend" />
+            <option value="$PROJECT_DIR$/rocket-chip/chisel3/coreMacros" />
+            <option value="$PROJECT_DIR$/rocket-chip/hardfloat" />
+            <option value="$PROJECT_DIR$/rocket-chip/macros" />
+            <option value="$PROJECT_DIR$/rocket-chip/project" />
+            <option value="$PROJECT_DIR$/sifive-blocks" />
+          </set>
+        </option>
+        <option name="sbtVersion" value="1.1.1" />
+      </SbtProjectSettings>
+    </option>
+  </component>
+</project>

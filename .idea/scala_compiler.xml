@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="freedom_3285" />
+    <profile name="sbt 2" modules="chisel3,chiselFrontend,coreMacros">
+      <option name="deprecationWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <plugins>
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scalamacros/paradise_2.11.12/jars/paradise_2.11.12-2.1.0.jar" />
+      </plugins>
+    </profile>
+    <profile name="sbt 3" modules="fpgaShells,freedom,nvdlaBlocks,sifiveBlocks">
+      <option name="reflectiveCalls" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-Xsource:2.11" />
+      </parameters>
+    </profile>
+    <profile name="sbt 4" modules="hardfloat">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <parameters>
+        <parameter value="-Xsource:2.11" />
+      </parameters>
+      <plugins>
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scalamacros/paradise_2.11.12/jars/paradise_2.11.12-2.1.0.jar" />
+      </plugins>
+    </profile>
+    <profile name="sbt 5" modules="macros,rocketchip">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <parameters>
+        <parameter value="-Xsource:2.11" />
+      </parameters>
+      <plugins>
+        <plugin path="$USER_HOME$/.ivy2/cache/org.scalamacros/paradise_2.12.4/jars/paradise_2.12.4-2.1.0.jar" />
+      </plugins>
+    </profile>
+  </component>
+</project>
