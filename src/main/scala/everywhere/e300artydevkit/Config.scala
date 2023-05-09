@@ -1,7 +1,7 @@
 // See LICENSE for license details.
 package sifive.freedom.everywhere.e300artydevkit
 
-import everywhere.e300artydevkit.FreedomERoCCExample2Config
+import everywhere.e300artydevkit.{E300LCMConfig, E300MatrixSumConfig, FreedomERoCCExample2Config}
 import freechips.rocketchip.config._
 import freechips.rocketchip.subsystem._
 import freechips.rocketchip.devices.debug._
@@ -185,6 +185,39 @@ class E300RoCCExample extends Config(
 class E300RoCCExample2 extends Config(
   new E300DevKitPeripherals    ++
   new FreedomERoCCExample2Config().alter((site,here,up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
+
+
+
+class E300LCM extends Config(
+  new E300DevKitPeripherals    ++
+
+    new E300LCMConfig().alter((site,here,up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
+class E300MatrixSum extends Config(
+  new E300DevKitPeripherals    ++
+
+    new E300MatrixSumConfig().alter((site,here,up) => {
     case DTSTimebase => BigInt(32768)
     case JtagDTMKey => new JtagDTMConfig (
       idcodeVersion = 2,
