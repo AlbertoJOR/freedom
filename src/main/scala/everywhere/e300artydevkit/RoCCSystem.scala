@@ -3,7 +3,7 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.system._
 import freechips.rocketchip.subsystem._
 import GDC._
-import MatrixSum._
+import RoCCPrac.WithMyRoCC
 // Declaration of new core implementations
 
 
@@ -30,13 +30,13 @@ class E300LCMConfig extends Config(
     new TinyConfig
 )
 
-class E300MatrixSumConfig extends Config(
+class E300MyRoCCConfig extends Config(
   new WithNBreakpoints(2) ++
     new WithNExtTopInterrupts(0) ++
     new WithJtagDTM ++
     new WithL1ICacheWays(2) ++
     new WithL1ICacheSets(128) ++
     new WithDefaultBtb ++
-    new WithMatrixSum ++
+    new WithMyRoCC ++
     new TinyConfig
 )

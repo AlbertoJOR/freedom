@@ -1,9 +1,9 @@
 package GDC
 
 import Chisel._
-import freechips.rocketchip.tile._ // 导入LazyRoCC
-import freechips.rocketchip.config._ // 导入Config object
-import freechips.rocketchip.diplomacy._ // 导入LazyModule
+import freechips.rocketchip.tile._
+import freechips.rocketchip.config._
+import freechips.rocketchip.diplomacy._
 
 
 class LCM(val w: Int) extends Module {
@@ -48,8 +48,8 @@ class LCM(val w: Int) extends Module {
 }
 
 class LCMRoCCAccel(opcodes: OpcodeSet, val w : Int)(implicit p: Parameters) extends LazyRoCC(opcodes){
-    override lazy val module = new LazyRoCCModuleImp(this){//作为隐式类，也可显式写在外面
-        // LazyRoCCModuleImp 已经定义好 IO
+    override lazy val module = new LazyRoCCModuleImp(this){
+        // LazyRoCCModuleImp  IO
 
         val rd = RegInit(0.U(5.W))
         val rs1Value = RegInit(0.U(w.W))
@@ -63,7 +63,7 @@ class LCMRoCCAccel(opcodes: OpcodeSet, val w : Int)(implicit p: Parameters) exte
         io.busy := busy
 
         val canDecode = io.cmd.fire() && (io.cmd.bits.inst.funct===0.U)
-        when(canDecode){ // 每当fire时候会Rocket-core送一条指令过来
+        when(canDecode){
             busy := true.B
             rs1Value := io.cmd.bits.rs1
             rs1Enable := true.B
@@ -104,7 +104,7 @@ class LCMRoCCAccel(opcodes: OpcodeSet, val w : Int)(implicit p: Parameters) exte
 class WithLCMRoCCAccel extends Config((site,here,up) => {
     case BuildRoCC => Seq(
         (p:Parameters) => {
-            val regWidth = 32 // 寄存器位宽
+            val regWidth = 32
             val lcmAccel = LazyModule(new LCMRoCCAccel(OpcodeSet.all, regWidth)(p))
             lcmAccel
         }
