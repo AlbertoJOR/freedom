@@ -3,7 +3,7 @@ import freechips.rocketchip.config._
 import freechips.rocketchip.system._
 import freechips.rocketchip.subsystem._
 import GDC._
-import RoCCPrac.{WithMyRoCC, WithMyRoCC2, WithMyRoCC3}
+import RoCCPrac._
 // Declaration of new core implementations
 
 
@@ -42,14 +42,14 @@ class E300MyRoCCConfig extends Config(
 )
 
 
-class E300MyRoCC3Config extends Config(
+class RWConfig extends Config(
   new WithNBreakpoints(2) ++
     new WithNExtTopInterrupts(0) ++
     new WithJtagDTM ++
     new WithL1ICacheWays(2) ++
     new WithL1ICacheSets(128) ++
     new WithDefaultBtb ++
-    new WithMyRoCC3 ++
+    new WithRWRoCC ++
     new TinyConfig
 )
 

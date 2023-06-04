@@ -1,7 +1,7 @@
 // See LICENSE for license details.
 package sifive.freedom.everywhere.e300artydevkit
 
-import everywhere.e300artydevkit.{E300LCMConfig, E300MyRoCC2Config, E300MyRoCC3Config, E300MyRoCCConfig, FreedomERoCCExample2Config}
+import everywhere.e300artydevkit.{E300LCMConfig, E300MyRoCC2Config, E300MyRoCCConfig, FreedomERoCCExample2Config, RWConfig}
 import freechips.rocketchip.config._
 import freechips.rocketchip.subsystem._
 import freechips.rocketchip.devices.debug._
@@ -230,9 +230,9 @@ class E300MyRoCC extends Config(
 )
 
 
-class E300MyRoCC3 extends Config(
+class E300RW extends Config(
   new E300DevKitPeripherals    ++
-    new E300MyRoCC3Config().alter((site, here, up) => {
+    new RWConfig().alter((site, here, up) => {
     case DTSTimebase => BigInt(32768)
     case JtagDTMKey => new JtagDTMConfig (
       idcodeVersion = 2,
