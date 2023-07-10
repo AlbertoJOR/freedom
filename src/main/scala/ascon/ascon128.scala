@@ -2,7 +2,6 @@ package ascon
 
 import ascon.permutation.PermutationPa
 import chisel3._
-import chisel3.aop.Select.When
 import chisel3.util._
 
 class ascon128 extends Module {

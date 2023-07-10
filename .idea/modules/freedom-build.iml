@@ -103,7 +103,7 @@
   </component>
   <component name="SbtModule">
     <option name="buildForURI" value="file:$MODULE_DIR$/../../" />
-    <option name="imports" value="SUB:DOLLAR3c2ecdbeb846a5f88bca.`fpgaShells`, SUB:DOLLAR3c2ecdbeb846a5f88bca.`freedomPlatforms`, SUB:DOLLAR3c2ecdbeb846a5f88bca.`nvdlaBlocks`, SUB:DOLLAR3c2ecdbeb846a5f88bca.`sifiveBlocks`, _root_.sbt.Keys._, _root_.sbt._, _root_.sbt.plugins.IvyPlugin, _root_.sbt.plugins.JvmPlugin, _root_.sbt.plugins.CorePlugin, _root_.sbt.plugins.JUnitXmlReportPlugin, _root_.sbt.plugins.Giter8TemplatePlugin, _root_.scala.xml.{TopScope=&gt;SUB:DOLLARscope}" />
+    <option name="imports" value="SUB:DOLLAR6d9e8658f37ec732f119.`fpgaShells`, SUB:DOLLAR6d9e8658f37ec732f119.`freedomPlatforms`, SUB:DOLLAR6d9e8658f37ec732f119.`nvdlaBlocks`, SUB:DOLLAR6d9e8658f37ec732f119.`sifiveBlocks`, _root_.sbt.Keys._, _root_.sbt._, _root_.sbt.plugins.IvyPlugin, _root_.sbt.plugins.JvmPlugin, _root_.sbt.plugins.CorePlugin, _root_.sbt.plugins.JUnitXmlReportPlugin, _root_.sbt.plugins.Giter8TemplatePlugin, _root_.scala.xml.{TopScope=&gt;SUB:DOLLARscope}" />
     <option name="resolvers" value="https://repo1.maven.org/maven2/|maven|public, /home/albertojor/.ivy2/cache|ivy|true|Local cache" />
   </component>
 </module>

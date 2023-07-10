@@ -3,6 +3,7 @@ package ascon
 import ascon.permutation.PermutationPa
 import chisel3._
 import chisel3.util._
+import trivium._
 
 class ascon128RoCC extends Module {
   val io = IO(new Bundle() {
@@ -42,7 +43,9 @@ class ascon128RoCC extends Module {
   val Ctrl = Module(new asconCtrlRocc)
   val Asconp = Module(new PermutationPa)
   val HashReg = RegInit(VecInit(Seq.fill(4)(0.U(64.W))))
-
+  val randFSM= Module(new RandFSM)
+ // val trivium = Module(new trivium)
+  val kmu = Module(new KMU)
 
   MuxRate.io.as_data := io.AD
   MuxRate.io.iv := Mux(io.hash_mode, "h00400c0000000100".U ,"h80400c0600000000".U)
@@ -69,7 +72,7 @@ class ascon128RoCC extends Module {
   MuxMC.io.valid_per := Asconp.io.valid
   MuxMC.io.decrypt_mode := io.decrypt
   io.C := MuxMC.io.cipher_text
-  io.C_valid:= MuxMC.io.valid
+  io.C_valid:= Mux(io.write_busy, false.B, MuxMC.io.valid)
 
   // Control
   Ctrl.io.asso_len := io.ad_len
@@ -115,6 +118,21 @@ class ascon128RoCC extends Module {
   Ctrl.io.read_busy := io.read_busy
   io.load_block := Ctrl.io.load_block
   io.cipher_stage := Ctrl.io.ciphering
+
+  // rANDUM
+  val State_Asconp = Reg(Vec(5, UInt(64.W)))
+  State_Asconp := Asconp.io.S
+  randFSM.io.seed := false.B
+  randFSM.io.rand := false.B
+  randFSM.io.busy_per := false.B
+
+  // trivium.io.iv:= 0.U
+  // trivium.io.K := 0.U
+  //KMU
+  kmu.io.key_in := 9.U
+  kmu.io.key_id := 0.U
+  kmu.io.store_key := false.B
+  kmu.io.get_key := false.B
 
 
 

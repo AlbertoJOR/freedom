@@ -1,8 +1,22 @@
-make BOARD=arty_a7_100 CONFIG=E300MyRoCC3 -f Makefile.e300artydevkit clean
-make BOARD=arty_a7_100 CONFIG=E300MyRoCC3 -f Makefile.e300artydevkit verilog
-make BOARD=arty_a7_100 CONFIG=E300MyRoCC3 -f Makefile.e300artydevkit mcs
+make BOARD=arty_a7_100 CONFIG=E300RW -f Makefile.e300artydevkit clean
+make BOARD=arty_a7_100 CONFIG=E300RW -f Makefile.e300artydevkit verilog
+make BOARD=arty_a7_100 CONFIG=E300RW -f Makefile.e300artydevkit mcs
 
 
 make BOARD=arty_a7_100 CONFIG=E300MyRoCC2 -f Makefile.e300artydevkit clean
 make BOARD=arty_a7_100 CONFIG=E300MyRoCC2 -f Makefile.e300artydevkit verilog
 make BOARD=arty_a7_100 CONFIG=E300MyRoCC2 -f Makefile.e300artydevkit mcs
+
+
+
+make BOARD=arty_a7_100 CONFIG=E300ArtyDevKitConfig -f Makefile.e300artydevkit clean
+make BOARD=arty_a7_100 CONFIG=E300ArtyDevKitConfig -f Makefile.e300artydevkit verilog
+make BOARD=arty_a7_100 CONFIG=E300ArtyDevKitConfig -f Makefile.e300artydevkit mcs
+
+make BOARD=arty_a7_100 CONFIG=E300MyRoCC2xmem -f Makefile.e300artydevkit clean
+make BOARD=arty_a7_100 CONFIG=E300MyRoCC2xmem -f Makefile.e300artydevkit verilog
+make BOARD=arty_a7_100 CONFIG=E300MyRoCC2xmem -f Makefile.e300artydevkit mcs
+
+make BOARD=arty_a7_100 CONFIG=E300RWxmem -f Makefile.e300artydevkit clean
+make BOARD=arty_a7_100 CONFIG=E300RWxmem -f Makefile.e300artydevkit verilog
+make BOARD=arty_a7_100 CONFIG=E300RWxmem -f Makefile.e300artydevkit mcs

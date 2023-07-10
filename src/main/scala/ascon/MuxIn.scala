@@ -122,7 +122,7 @@ class CipheredMux extends Module {
   out_s_0_normal_mode := Mux(io.decrypt_mode, out_state_decrypt, out_state_plain)
   io.S_out := Mux(io.hash_mode,out_hash_stage, out_s_0_normal_mode)
 
-  when(io.c_cipher) { //"b10".U
+  when(io.c_cipher && io.p_bytes > 0.U) { //"b10".U
     io.valid := !io.c_c_last && io.valid_per
     when(io.c_c_last) { // "b11".U
       io.valid := true.B

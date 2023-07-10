@@ -11,7 +11,7 @@ lazy val commonSettings = Seq(
     "-unchecked",
     "-Xsource:2.11",
     "-language:reflectiveCalls"
-  )
+  ),
 )
 
 // A RootProject (not well-documented) tells sbt to treat the target directory

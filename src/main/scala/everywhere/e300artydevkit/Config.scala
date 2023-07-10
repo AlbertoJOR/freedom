@@ -1,6 +1,7 @@
 // See LICENSE for license details.
 package sifive.freedom.everywhere.e300artydevkit
 
+import RoCCPrac._
 import everywhere.e300artydevkit.{E300LCMConfig, E300MyRoCC2Config, E300MyRoCCConfig, FreedomERoCCExample2Config, RWConfig}
 import freechips.rocketchip.config._
 import freechips.rocketchip.subsystem._
@@ -62,6 +63,7 @@ class With1Tiny64bitFPUCore extends Config((site, here, up) => {
 })
 
 
+
 class TinyFPUConfig extends Config(
   new WithNoMemPort ++
     new WithNMemoryChannels(0) ++
@@ -69,18 +71,6 @@ class TinyFPUConfig extends Config(
     new With1Tiny64bitCore ++
     new With1Tiny64bitFPUCore ++
     new BaseConfig)
-// RoCC example it includes 3 coprocessors
-class FreedomERoCCExampleConfig extends Config(
-  new WithNBreakpoints(2) ++
-    new WithNExtTopInterrupts(0) ++
-    new WithJtagDTM ++
-    new WithL1ICacheWays(2) ++
-    new WithL1ICacheSets(128) ++
-    new WithDefaultBtb ++
-    new WithRoccExample ++
-    new TinyConfig
-)
-
 
 // Default FreedomEConfig
 class DefaultFreedomEConfig extends Config (
@@ -165,41 +155,66 @@ class EFPU64bit extends Config(
     }
   })
 )
-// E310 with the RoCC Example
-//class E300RoCCExample extends Config(
-//  new E300DevKitPeripherals    ++
-//  new FreedomERoCCExampleConfig().alter((site,here,up) => {
-//    case DTSTimebase => BigInt(32768)
-//    case JtagDTMKey => new JtagDTMConfig (
-//      idcodeVersion = 2,
-//      idcodePartNum = 0x000,
-//      idcodeManufId = 0x489,
-//      debugIdleCycles = 5)
-//    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
-//      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
-//    }
-//  })
-//)
 
-// Example of a custom config
-//class E300RoCCExample2 extends Config(
-//  new E300DevKitPeripherals    ++
-//  new FreedomERoCCExample2Config().alter((site,here,up) => {
-//    case DTSTimebase => BigInt(32768)
-//    case JtagDTMKey => new JtagDTMConfig (
-//      idcodeVersion = 2,
-//      idcodePartNum = 0x000,
-//      idcodeManufId = 0x489,
-//      debugIdleCycles = 5)
-//    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
-//      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
-//    }
-//  })
-//)
+class With1Tiny32MoreCache extends Config((site, here, up) => {
+  case XLen => 32
+  case RocketTilesKey => List(RocketTileParams(
+    core = RocketCoreParams(
+      useVM = false,
+      fpu = None,
+      mulDiv = Some(MulDivParams(mulUnroll = 8))),
+    btb = None,
+    dcache = Some(DCacheParams(
+      rowBits = site(SystemBusKey).beatBits,
+      nSets = 8192, // 512 kB
+      nWays = 1,
+      nTLBEntries = 4,
+      nMSHRs = 0,
+      blockBytes = site(CacheBlockBytes),
+      scratch = Some(0x80000000L))),
+    icache = Some(ICacheParams(
+      rowBits = site(SystemBusKey).beatBits,
+      nSets = 64,
+      nWays = 1,
+      nTLBEntries = 4,
+      blockBytes = site(CacheBlockBytes)))))
+  case RocketCrossingKey => List(RocketCrossingParams(
+    crossingType = SynchronousCrossing(),
+    master = TileMasterPortParams()
+  ))
+})
+class TinyConfigxmem extends Config(
+  new WithNoMemPort ++
+    new WithNMemoryChannels(0) ++
+    new WithNBanks(0) ++
+    new With1Tiny32MoreCache ++
+    new BaseConfig)
 
+class DefaultFreedomEConfigxmem extends Config (
+  new WithNBreakpoints(2)        ++
+  new WithNExtTopInterrupts(0)   ++
+  new WithJtagDTM                ++
+  new WithL1ICacheWays(2)        ++
+  new WithL1ICacheSets(128)      ++
+  new WithDefaultBtb             ++
+  new TinyConfigxmem
+)
+class E300xmem extends Config(
+  new E300DevKitPeripherals    ++
+    new DefaultFreedomEConfigxmem().alter((site, here, up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
 
-
-class E300LCM extends Config(
+/*class E300LCM extends Config(
   new E300DevKitPeripherals    ++
 
     new E300LCMConfig().alter((site,here,up) => {
@@ -213,7 +228,7 @@ class E300LCM extends Config(
       r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
     }
   })
-)
+)*/
 class E300MyRoCC extends Config(
   new E300DevKitPeripherals    ++
     new E300MyRoCCConfig().alter((site,here,up) => {
@@ -249,6 +264,59 @@ class E300RW extends Config(
 class E300MyRoCC2 extends Config(
   new E300DevKitPeripherals    ++
     new E300MyRoCC2Config().alter((site, here, up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
+
+
+
+class MyRoCC2xmemConfig extends Config(
+  new WithNBreakpoints(2) ++
+    new WithNExtTopInterrupts(0) ++
+    new WithJtagDTM ++
+    new WithL1ICacheWays(2)        ++
+  new WithL1ICacheSets(256)      ++
+    new WithDefaultBtb ++
+    new WithMyRoCC2 ++
+    new TinyConfigxmem
+)
+
+class E300MyRoCC2xmem extends Config(
+  new E300DevKitPeripherals    ++
+    new MyRoCC2xmemConfig().alter((site, here, up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
+class RWConfigxmem extends Config(
+  new WithNBreakpoints(2) ++
+    new WithNExtTopInterrupts(0) ++
+    new WithJtagDTM ++
+    new WithL1ICacheWays(2) ++
+    new WithL1ICacheSets(256) ++
+    new WithDefaultBtb ++
+    new WithRWRoCC ++
+    new TinyConfigxmem
+)
+
+class E300RWxmem extends Config(
+  new E300DevKitPeripherals    ++
+    new RWConfigxmem().alter((site, here, up) => {
     case DTSTimebase => BigInt(32768)
     case JtagDTMKey => new JtagDTMConfig (
       idcodeVersion = 2,

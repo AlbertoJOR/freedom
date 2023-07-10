@@ -8,7 +8,6 @@ class trivium extends Module {
   val io = IO(new Bundle() {
     val iv = Input(UInt(64.W))
     val K = Input(UInt(64.W))
-    val reset = Input(Bool())
     val valid = Output(Bool())
     val Z = Output(UInt(64.W))
     val S1 = Output(UInt(93.W))
@@ -18,8 +17,10 @@ class trivium extends Module {
   val S1 = RegInit(VecInit(Seq.fill(93)(false.B)))
   val S2 = RegInit(VecInit(Seq.fill(84)(false.B)))
   val S3 = RegInit(VecInit(Seq.fill(108)(false.B) ++ Seq.fill(3)(true.B)))
-
+  /// NO existe el asBITs
+  S3.asUInt()
   val counter = RegInit(0.U(11.W))
+  val exam = 3.U(4.W)
   val ready_reg = RegInit(false.B)
   val iR1, iR2, iR3, ZZ = RegInit(0.U(64.W))
   val t1, t2, t3, t1r, t2r, t3r = Wire(Vec(64, Bool()))
@@ -38,28 +39,28 @@ class trivium extends Module {
     iR3 := io.K
     iR2 := 0.U
     iR1 := io.iv
-    S1 := Cat(S1.asUInt(28, 0), io.K).asBools
-    S2 := Cat(S2.asUInt(19, 0), io.iv).asBools
+    S1 := Cat(S1.asUInt()(28, 0), io.K)
+    S2 := Cat(S2.asUInt()(19, 0), io.iv)
   }.elsewhen(counter === 1.U) {
     iR3 := io.K
     iR1 := io.iv
-    S1 := Cat(S1.asUInt(76, 0), io.K(15, 0)).asBools
-    S2 := Cat(S2.asUInt(67, 0), io.iv(15, 0)).asBools
+    S1 := Cat(S1.asUInt()(76, 0), io.K(15, 0))
+    S2 := Cat(S2.asUInt()(67, 0), io.iv(15, 0))
   }.elsewhen(counter < 20.U) {
     iR1 := t1.asUInt
     iR2 := t2.asUInt
     iR3 := t3.asUInt
-    S1 := Cat(S1.asUInt(28, 0), t3.asUInt).asBools
-    S2 := Cat(S2.asUInt(19, 0), t1.asUInt).asBools
-    S3 := Cat(S3.asUInt(46, 0), t2.asUInt).asBools
+    S1 := Cat(S1.asUInt()(28, 0), t3.asUInt)
+    S2 := Cat(S2.asUInt()(19, 0), t1.asUInt)
+    S3 := Cat(S3.asUInt()(46, 0), t2.asUInt)
   }.otherwise{
    ready_reg := 1.U
     iR1 := t1.asUInt
 			iR2 := t2.asUInt
 			iR3 := t3.asUInt
-			S1 :=Cat(  S1.asUInt(28 , 0) , t3.asUInt).asBools
-			S2 := Cat(  S2.asUInt(19 , 0) , t1.asUInt).asBools
-			S3 := Cat(  S3.asUInt(46 , 0) , t2.asUInt).asBools
+			S1 :=Cat(  S1.asUInt()(28 , 0) , t3.asUInt)
+			S2 := Cat(  S2.asUInt()(19 , 0) , t1.asUInt)
+			S3 := Cat(  S3.asUInt()(46 , 0) , t2.asUInt)
   }
   io.Z := ZZ
   when(!ready_reg){
@@ -69,6 +70,7 @@ class trivium extends Module {
   io.S1 := S1.asUInt
   io.S2 := S2.asUInt
   io.S3 :=S3.asUInt
+
 
 
 

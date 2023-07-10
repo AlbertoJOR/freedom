@@ -95,7 +95,7 @@ class asconCtrlRocc extends Module {
   io.hash_index := hash_index_counter
   io.valid_hash := valid_hash
   io.hash_stage := hash_stage
-  io.load_block := (stateReg === s_ad && a_len_reg > 0.U) || (stateReg === s_plain && p_len_reg > 0.U)
+  io.load_block := (stateReg === s_ad && a_len_reg > 0.U) || (stateReg === s_plain && p_len_reg > 0.U) && !io.read_busy
 
   //io.decrypt_mode_out := decrypt_mode_reg
 

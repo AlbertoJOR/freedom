@@ -1,6 +1,6 @@
 package ascon.permutation
 
-import Chisel._
+import chisel3._
 class sBox( ) extends  Module{
   val io = IO(new Bundle{
     val A = Input(Vec(5, UInt(64.W)))

@@ -6,13 +6,6 @@ import chisel3._
 import chisel3.util._
 
 
-object AsconCtrlStates {
-  object State extends ChiselEnum {
-    val s_rst, s_idle, s_set, s_init, s_ad, s_ad_absorb, s_plain,
-    s_plain_absorb, s_tag, s_m_absorb, s_m_absorb_process,
-    s_hash_squeeze, s_hash_process= Value
-  }
-}
 
 class asconCtrl64 extends Module {
 
