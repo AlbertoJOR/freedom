@@ -1,4 +1,5 @@
 package ascon
+
 import chisel3._
 import chisel3.util._
 class RandFSM extends Module {

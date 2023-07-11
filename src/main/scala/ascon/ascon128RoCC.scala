@@ -45,7 +45,7 @@ class ascon128RoCC extends Module {
   val HashReg = RegInit(VecInit(Seq.fill(4)(0.U(64.W))))
   val randFSM= Module(new RandFSM)
  // val trivium = Module(new trivium)
-  val kmu = Module(new KMU)
+  val kmu = Module(new KMU(8))
 
   MuxRate.io.as_data := io.AD
   MuxRate.io.iv := Mux(io.hash_mode, "h00400c0000000100".U ,"h80400c0600000000".U)
@@ -133,6 +133,8 @@ class ascon128RoCC extends Module {
   kmu.io.key_id := 0.U
   kmu.io.store_key := false.B
   kmu.io.get_key := false.B
+  kmu.io.delete_key := false.B
+  kmu.io.get_master := false.B
 
 
 
