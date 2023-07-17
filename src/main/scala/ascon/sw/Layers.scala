@@ -259,7 +259,7 @@ object ASCON {
   }
 
   def ascon_encription(m: Array[BigInt], mlen: Int, ad: Array[BigInt],c :Array[BigInt],
-                       adlen: Int, npub: Array[BigInt], key: Array[BigInt]): Unit = {
+                       adlen: Int, npub: Array[BigInt], key: Array[BigInt], debug :Boolean = false): Unit = {
     var State = Array(
       BigInt(0),
       BigInt(0),
@@ -268,44 +268,44 @@ object ASCON {
       BigInt(0)
     )
     State = initialization(State, key, npub)
-    printState(State, "After init")
+    printState(State, "After init",debug)
 
 
     // Xor init
 
-    printState(State, "Xor key 2")
+    printState(State, "Xor key 2",debug)
     var adlen_aux = adlen
     var adindex = 0
     if (adlen_aux > 0) {
       while (adlen_aux >= 8) {
         State(0) ^= ad(adindex)
         State = permutationa(State, 6)
-        printState(State, s"Absorb AD [$adindex]")
+        printState(State, s"Absorb AD [$adindex]",debug)
 
         adindex += 1
         adlen_aux -= 8
       }
       State(0) ^= pad(ad(adindex), adlen_aux)
-      printState(State, "Paded data")
+      printState(State, "Paded data", debug)
       State = permutationa(State, 6)
-      printState(State, "Paded round data")
+      printState(State, "Paded round data",debug)
     }
     // Domain separation
     State(4) ^= BigInt("0000000000000001", 16)
-    printState(State, "AD Domain Separartion")
+    printState(State, "AD Domain Separartion",debug)
     var mlen_aux = mlen
     var mindex = 0
     // Plain text processing
     while (mlen_aux >= 8) {
       State(0) ^= m(mindex)
       c(mindex) = State(0)
-      printState(State, s"Absorb M [$mindex]")
+      printState(State, s"Absorb M [$mindex]",debug)
       State = permutationa(State, 6)
       mindex += 1
       mlen_aux -= 8
     }
     // final block
-    printState(State, "before MPad")
+    printState(State, "before MPad",debug)
     //println(s"mlen_aux: $mlen_aux")
     c(mindex) = trimM(m(mindex), State(0), mlen_aux)
     //println(trimM(m(mindex), State(0), mlen_aux).toString(16))
@@ -313,10 +313,10 @@ object ASCON {
     State(0) ^= pad(m(mindex), mlen_aux)
     //println("pad " + pad(m(mindex), mlen_aux).toString(16))
 
-    printState(State, "pad Plain")
+    printState(State, "pad Plain",debug)
 
     State = finalization(State, key)
-    printState(State, "fin")
+    printState(State, "fin",debug)
     cipherTextTag.Tag(0) = State(3)
     cipherTextTag.Tag(1) = State(4)
 

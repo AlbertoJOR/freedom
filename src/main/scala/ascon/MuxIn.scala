@@ -96,6 +96,8 @@ class CipheredMux extends Module {
     val valid = Output(Bool())
     val cipher_text = Output(UInt(64.W))
     val S_out = Output(UInt(64.W))
+    val block_zero = Input(Bool())
+    val has_inc_block = Input(Bool())
   })
   io.valid := false.B
   //io.cipher_text:= 0.U
@@ -112,7 +114,7 @@ class CipheredMux extends Module {
   val out_s_0_normal_mode = Wire(UInt(64.W))
 
   out_cipher_text := Mux(io.c_c_last, padder.io.C, io.plain ^ io.rate) // Cipher dont add ^1
-  io.cipher_text := Mux(io.hash_mode, io.rate, out_cipher_text )
+  io.cipher_text := Mux(io.hash_mode, io.rate, out_cipher_text)
 
 
   out_state_decrypt := Mux(io.c_c_last, padder.io.S_dec_out, io.plain)
@@ -120,13 +122,15 @@ class CipheredMux extends Module {
   out_hash_stage := Mux(io.hash_stage, io.rate, out_state_plain)
 
   out_s_0_normal_mode := Mux(io.decrypt_mode, out_state_decrypt, out_state_plain)
-  io.S_out := Mux(io.hash_mode,out_hash_stage, out_s_0_normal_mode)
+  io.S_out := Mux(io.hash_mode, out_hash_stage, out_s_0_normal_mode)
 
   when(io.c_cipher && io.p_bytes > 0.U) { //"b10".U
-    io.valid := !io.c_c_last && io.valid_per
+    io.valid := !io.c_c_last && io.valid_per &&( !io.block_zero || io.has_inc_block)
     when(io.c_c_last) { // "b11".U
       io.valid := true.B
     }
+
+
   }.otherwise {
     io.valid := false.B
   }
