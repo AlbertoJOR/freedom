@@ -138,15 +138,7 @@ class AccelModuleImp2(outer: AccelModule2)(implicit p: Parameters) extends LazyR
     //      }
     //    }
 
-    is(s_ack_load) {
-      when(block_counter < 2.U) {
-        state := s_mem_load_req
-      }.otherwise {
-        state := s_mem_write_req
-        block_counter := 0.U
-      }
 
-    }
     is(s_mem_write_req) {
 
       io.mem.req.bits.addr := result_addr
