@@ -4,49 +4,95 @@ package ascon.util
 import chisel3._
 import chisel3.util._
 
-class memFSM(read_counter :Int, write_counter :Int) extends Module{
-val io = IO(new Bundle() {
- val load_block = Input(Bool())
-  val write_block = Input(Bool())
-  val busy_load = Output(Bool())
-  val busy_write = Output(Bool())
-  val load_to_write = Output(Bool())
-})
+class memFSM(read_counter: Int, write_counter: Int) extends Module {
+  val io = IO(new Bundle() {
+    val load_block = Input(Bool())
+    val write_block = Input(Bool())
+    val c_valid = Input(Bool())
+    val ciphering = Input(Bool())
+    val init = Input(Bool())
+    val busy_load = Output(Bool())
+    val busy_write = Output(Bool())
+    val valid = Input(Bool())
+    val valid_ad = Output(Bool())
+
+    val Data_A_in = Input(Vec(4, UInt(64.W)))
+    val Data_P_in = Input(Vec(4, UInt(64.W)))
+    val Data_out = Output(Vec(4, UInt(64.W)))
+
+    val load_data = Output(UInt(64.W))
+    val write_data = Input(UInt(64.W))
+
+  })
   val s_rst :: s_idle :: s_wait :: s_loading :: s_wirting :: Nil = Enum(5)
   val stateReg = RegInit(s_idle)
   io.busy_load := stateReg === s_loading
   io.busy_write := stateReg === s_wirting
-  io.load_to_write := stateReg === s_loading & io.write_block
   val counter = RegInit(0.U(16.W))
+  val valid_ad_reg = RegInit(false.B)
+  val Data_File = RegInit(VecInit(Seq.fill(16)(0.U(64.W))))
+  val plain_addr = RegInit(0.U(4.W))
+  val as_addr = RegInit(0.U(4.W))
+  val ciph_addr = RegInit(0.U(4.W))
+  val write_data = RegInit(0.U(64.W))
+  val load_data = RegInit(0.U(64.W))
+  io.load_data := load_data
+  io.valid_ad := valid_ad_reg
+  when(io.c_valid){
+    write_data := io.write_data
+  }
+for (k <- 8 until 12) {
+        io.Data_out(k-8) := Data_File(k)
+      }
+  switch(stateReg) {
+    is(s_idle) {
+      when(io.init) {
+        as_addr := 0.U
+        plain_addr := 4.U
+        ciph_addr := 8.U
+        valid_ad_reg := false.B
+        stateReg := s_wait
+      }
 
-  switch(stateReg){
-    is(s_idle){
-      stateReg := s_wait
+      for (i <- 0 until 4) {
+        Data_File(i) := io.Data_A_in(i)
+      }
+      for (j <- 4 until 8) {
+        Data_File(j) := io.Data_P_in(j - 4)
+      }
     }
     is(s_wait) {
-      when(io.load_block){
+      when(io.load_block) {
         stateReg := s_loading
+        valid_ad_reg := false.B
         counter := 0.U
-      }.elsewhen(io.write_block){
+      }.elsewhen(io.write_block) {
         stateReg := s_wirting
         counter := 0.U
+      }.elsewhen(io.valid){
+        stateReg := s_idle
       }
     }
     is(s_loading) {
-      counter := Mux(counter<(read_counter *2).asUInt, counter + 1.U, 0.U)
-      when(counter >= read_counter.asUInt){
+      counter := Mux(counter < (read_counter * 2).asUInt, counter + 1.U, 0.U)
+      load_data := Data_File(Mux(io.ciphering,plain_addr,as_addr))
+      when(counter >= read_counter.asUInt) {
+        when(io.ciphering){
+          plain_addr := plain_addr + 1.U
+        }.otherwise{
+          as_addr := as_addr + 1.U
+        }
         stateReg := s_wait
+        valid_ad_reg := true.B
         counter := 0.U
       }
-      /*when(io.write_block){
-        stateReg := s_wirting
-        counter := 0.U
-      }*/
     }
     is(s_wirting) {
-      counter := Mux(counter < (write_counter *2).asUInt, counter + 1.U, 0.U)
+      counter := Mux(counter < (write_counter * 2).asUInt, counter + 1.U, 0.U)
+      Data_File(ciph_addr) := write_data
       when(counter >= write_counter.asUInt) {
         stateReg := s_wait
+        write_data := write_data + 1.U
         counter := 0.U
       }
     }

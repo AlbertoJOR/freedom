@@ -7,6 +7,7 @@ import ascon.util._
 class MuxInRate extends Module {
   val io = IO(new Bundle() {
     val as_data = Input(UInt(64.W)) // associated data in
+    val valid_ad = Input(Bool())
     val iv = Input(UInt(64.W)) // Initialization vector
     val rate_in = Input(UInt(64.W)) //S(0)
 
@@ -18,9 +19,13 @@ class MuxInRate extends Module {
     val S0_xor = Output(UInt(64.W))
   })
   val padAssociated = Module(new Padder)
+  val asociated = RegInit(0.U(64.W))
 
   // route padding for Associated Data and Plain text
-  padAssociated.io.A := io.as_data
+  when(io.valid_ad){
+    asociated := io.as_data
+  }
+  padAssociated.io.A := asociated
   padAssociated.io.len := io.a_bytes
 
   val sel = Cat(io.c_init, io.c_as_dt, io.c_a_last)

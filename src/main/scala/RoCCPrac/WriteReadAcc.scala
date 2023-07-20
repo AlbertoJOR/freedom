@@ -51,7 +51,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   val wire_write_busy = Wire(Bool())
 
 
-  val block_size = RegInit(2.U(32.W))
+  val block_size = RegInit(0.U(32.W))
 
 
   val module_ID = io.cmd.bits.inst.funct(6, 4)
@@ -80,6 +80,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   val need_write = RegInit(false.B)
   val first_load = RegInit(false.B)
   val half_load_reg = RegInit(0.U(64.W))
+  val valid_ad_reg = RegInit(false.B)
 
 
   when(io.cmd.fire()) {
@@ -91,7 +92,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         plain_text_len := io.cmd.bits.rs2
         // plain_text_len := io.cmd.bits.inst.rs2
         resp_valid := true.B
-        resp_rd_data := io.cmd.bits.rs2
+        resp_rd_data := io.cmd.bits.rs1
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -101,7 +102,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         associated_data_addr := io.cmd.bits.rs1
         associated_data_len := io.cmd.bits.rs2
         resp_valid := true.B
-        resp_rd_data := io.cmd.bits.rs2
+        resp_rd_data := io.cmd.bits.rs1
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -110,7 +111,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         cipher_text_addr := io.cmd.bits.rs1
         Tag_addr := io.cmd.bits.rs2
         resp_valid := true.B
-        resp_rd_data := 3.U
+        resp_rd_data := io.cmd.bits.rs1
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -212,10 +213,14 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   when(ASCON.io.load_block && !wire_load_busy && !wire_write_busy) {
     need_load := true.B
   }
-  when(ASCON.io.C_valid && !wire_load_busy && !wire_write_busy) {
+  /*when(ASCON.io.C_valid && !wire_load_busy && !wire_write_busy) {
     vec_blocks_write(0) := wire_cipher_text(63, 32)
     vec_blocks_write(1) := wire_cipher_text(31, 0)
     need_write := true.B
+  }*/
+  when(ASCON.io.C_valid) {
+    vec_blocks_write(0) := ASCON.io.C(63, 32)
+    vec_blocks_write(1) := ASCON.io.C(31, 0)
   }
   when(ASCON.io.valid_tag) {
     wire_Tag_valid := true.B
@@ -232,6 +237,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   val counter3 = RegInit(0.U(8.W))
   val counter5 = RegInit(0.U(8.W))
   val counter4 = RegInit(0.U(8.W))
+  ASCON.io.valid_ad := valid_ad_reg
 
 
   switch(state) {
@@ -241,6 +247,8 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       need_write := false.B
       first_load := false.B
       half_load_reg := 666.U
+      valid_ad_reg := false.B
+      block_size := 2.U
     }
 
     is(s_mem_load_req) {
@@ -276,10 +284,11 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       when(io.mem.resp.valid) {
         vec_blocks_load(block_counter) := io.mem.resp.bits.data
         block_counter := block_counter + 1.U
-        when(block_counter < 1.U) {
+        when(block_counter < block_size - 1.U) {
           state := s_mem_load_req
         }.otherwise {
           state := s_wait
+          valid_ad_reg := true.B
           block_counter := 0.U
           when(!first_load) {
             first_load := true.B
@@ -298,13 +307,14 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         state := s_end
       }
       // LOAD
-      when(need_load) {
+      when(ASCON.io.load_block) {
         state := s_mem_load_req
         need_load := false.B
+        valid_ad_reg := true.B
         block_counter := 0.U
         resp_rd_data := resp_rd_data | "h100".U
       }
-      when(need_write) {
+      when(ASCON.io.C_valid) {
         state := s_mem_write_req
         need_write := false.B
         block_counter := 0.U
@@ -349,7 +359,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       }
       when(io.mem.resp.valid) {
         //when(block_counter < 2.U) {
-        when(block_counter < 2.U) {
+        when(block_counter < block_size) {
           state := s_mem_write_req
         }.otherwise {
           state := s_wait
@@ -361,8 +371,8 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
 
     is(s_end) {
       // resp_rd_data := resp_rd_data | "h20000".U
-      // resp_rd_data := half_load_reg(47,16)
-      resp_rd_data := Cat(counter1, counter2, counter4, counter5)
+      resp_rd_data := half_load_reg(47,16)
+      // resp_rd_data := Cat(counter1, counter2, counter4, counter5)
       resp_valid := true.B
       // resp_rd_data := 8.U // Identify the end of the program
       block_counter := 0.U

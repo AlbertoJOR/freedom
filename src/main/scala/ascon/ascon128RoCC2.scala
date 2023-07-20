@@ -31,6 +31,7 @@ class ascon128RoCC2 extends Module {
     val valid_tag = Output(Bool())
     val Tag  = Output(Vec(2, UInt(64.W)))
     val Hash = Output(Vec(4, UInt(64.W)))
+    val valid_ad = Input(Bool())
     val valid_hash = Output(Bool())
   })
 
@@ -54,6 +55,7 @@ class ascon128RoCC2 extends Module {
   MuxRate.io.c_as_dt := Ctrl.io.c_rate_mux(1)
   MuxRate.io.c_a_last := Ctrl.io.c_rate_mux(0)
   MuxRate.io.a_bytes := Ctrl.io.bytes_pad
+  MuxRate.io.valid_ad := io.valid_ad
 
   MuxCap.io.key := Cat(io.Key(0), io.Key(1))
   MuxCap.io.nonce := Cat(io.Npub(0), io.Npub(1))

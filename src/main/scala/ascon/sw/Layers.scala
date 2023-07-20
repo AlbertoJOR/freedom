@@ -280,12 +280,14 @@ object ASCON {
       while (adlen_aux >= 8) {
         State(0) ^= ad(adindex)
         State = permutationa(State, 6)
+        if(debug)println( s"A block [$adindex]: " ++ ad(adindex).toString(16))
         printState(State, s"Absorb AD [$adindex]",debug)
 
         adindex += 1
         adlen_aux -= 8
       }
       State(0) ^= pad(ad(adindex), adlen_aux)
+      if(debug)( s"Pad" ++ pad(ad(adindex), adlen_aux).toString(16) )
       printState(State, "Paded data", debug)
       State = permutationa(State, 6)
       printState(State, "Paded round data",debug)
@@ -299,6 +301,8 @@ object ASCON {
     while (mlen_aux >= 8) {
       State(0) ^= m(mindex)
       c(mindex) = State(0)
+      if(debug)println( s"M block [$mindex]: " ++ m(mindex).toString(16))
+      if(debug)println( s"M block [$mindex]: " ++ c(mindex).toString(16))
       printState(State, s"Absorb M [$mindex]",debug)
       State = permutationa(State, 6)
       mindex += 1
@@ -308,7 +312,7 @@ object ASCON {
     printState(State, "before MPad",debug)
     //println(s"mlen_aux: $mlen_aux")
     c(mindex) = trimM(m(mindex), State(0), mlen_aux)
-    //println(trimM(m(mindex), State(0), mlen_aux).toString(16))
+    if(debug)println("Trim pad " ++trimM(m(mindex), State(0), mlen_aux).toString(16))
     //println(s"mindex $mindex: " + cipherTextTag.C(mindex).toString(16))
     State(0) ^= pad(m(mindex), mlen_aux)
     //println("pad " + pad(m(mindex), mlen_aux).toString(16))
@@ -344,12 +348,14 @@ object ASCON {
       while (adlen_aux >= 8) {
         State(0) ^= ad(adindex)
         State = permutationa(State, 6)
+        println( s"A block [$adindex]: " ++ ad(adindex).toString(16))
         printState(State, s"Absorb AD [$adindex]")
 
         adindex += 1
         adlen_aux -= 8
       }
       State(0) ^= pad(ad(adindex), adlen_aux)
+      println( s"Pad: " ++  pad(ad(adindex),adlen_aux).toString(16) )
       printState(State, "Paded data")
       State = permutationa(State, 6)
       printState(State, "Paded round data")
@@ -366,6 +372,7 @@ object ASCON {
       dec(cindex) = c0 ^ State(0)
 
       State(0) = c0
+      println( s"M block [$cindex]: " ++ dec(adindex).toString(16))
       printState(State, s"Absorb C [$cindex]")
       State = permutationa(State, 6)
       cindex += 1
@@ -450,17 +457,17 @@ object Hello extends App {
   //  ASCON.printState(State_aux)
 
   var message = Array(
-    BigInt("abcd012abf290cba", 16),
-    BigInt("5678c02803a01165", 16),
-    BigInt("5678518020108765", 16),
-    BigInt("5678a010a0908765", 16)
+    BigInt("1112131425262728",16),
+    BigInt("393a3b3c0d0e0f00",16),
+    BigInt("4142434455565758",16),
+    BigInt("696a6b6c7d7e7f70",16)
   )
 
   var assodat = Array(
-    BigInt(0),
-    BigInt(0),
-    BigInt(0),
-    BigInt(0)
+    BigInt("91929394a5a6a7a8",16),
+    BigInt("b9babbbccdcecfc0",16),
+    BigInt("d1d2d3d4e5e6e7e8",16),
+    BigInt("f9fafbfc8d8e8f80",16)
   )
   var hash = Array(
     BigInt(0),
@@ -496,31 +503,31 @@ object Hello extends App {
 
 
   var Key = Array(
-    BigInt("abcd00000000dcba", 16),
-    BigInt("5678000000008765", 16)
+    BigInt("0000000000000000", 16),
+    BigInt("0000000000000000", 16)
   )
   var Numpub = Array(
-    BigInt("1234000000004321", 16),
-    BigInt("4321000000001234", 16)
+    BigInt("0000000000000000", 16),
+    BigInt("0000000000000000", 16)
   )
 
-  val mlen = 21
-  val adlen = 5
+  val mlen = 10
+  val adlen = 10
   val res2 = ASCON.ascon_encription(message,mlen,assodat,c,adlen,Numpub,Key)
-  val res = ASCON.ascon_decription(c, mlen, assodat,dec, adlen, Numpub, Key)
+  // val res = ASCON.ascon_decription(c, mlen, assodat,dec, adlen, Numpub, Key)
 
   println(cipherTextTag.Tag(0).toString(16) + " " + cipherTextTag.Tag(1).toString(16))
   println()
-  println(cipherTextTag.Tag2(0).toString(16) + " " + cipherTextTag.Tag2(1).toString(16))
+  // println(cipherTextTag.Tag2(0).toString(16) + " " + cipherTextTag.Tag2(1).toString(16))
 
 //  val res2 = ASCON.ascon_Hash(message, mlen, hash)
-//  println("HashResult")
-  println(dec(0).toString(16))
-  println(dec(1).toString(16))
-  println(dec(2).toString(16))
-  println(dec(3).toString(16))
-  println(dec(4).toString(16))
-  println(dec(5).toString(16))
+  println("Cipheredtext")
+  println(c(0).toString(16))
+  println(c(1).toString(16))
+  println(c(2).toString(16))
+  println(c(3).toString(16))
+  println(c(4).toString(16))
+  println(c(5).toString(16))
 //  println()
 
 
