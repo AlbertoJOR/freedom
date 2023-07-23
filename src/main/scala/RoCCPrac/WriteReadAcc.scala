@@ -28,8 +28,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
 
   val resp_rd = RegInit(0.U(5.W)) //Reg(io.resp.bits.rd)
 
-  //val processed_words = RegInit(0.U(32.W))
-
 
   val s_idle :: s_mem_load_req :: s_load :: s_mem_write_req :: s_write :: s_wait :: s_end :: Nil = Enum(7)
   // Current state of the state machine
@@ -47,10 +45,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   // ASCON Crtl
   val vec_blocks_write = RegInit(Vec(Seq.fill(4)(127.U(32.W))))
   val vec_blocks_load = RegInit(Vec(Seq.fill(4)(7.U(32.W))))
-  val wire_load_busy = Wire(Bool())
-  val wire_write_busy = Wire(Bool())
-
-
   val block_size = RegInit(0.U(32.W))
 
 
@@ -74,19 +68,13 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   val Nonce_value = RegInit(0.U(128.W))
   val init_ascon = RegInit(false.B)
 
-  val counter6 = RegInit(0.U(32.W))
 
-  val need_load = RegInit(false.B)
-  val need_write = RegInit(false.B)
-  val first_load = RegInit(false.B)
-  val half_load_reg = RegInit(0.U(64.W))
+  // val first_load = RegInit(false.B)
   val valid_ad_reg = RegInit(false.B)
   val tag_written = RegInit(false.B)
   /// ASCON Outputs
   val wire_cipher_stage = Wire(Bool())
   val wire_busy = Wire(Bool())
-  val wire_cipher_text = Wire(UInt(64.W))
-  val wire_Tag = Wire(Vec(2, UInt(64.W)))
   val valid_tag_reg = RegInit(false.B)
 
   ///////////ASCON Declaration ////////////////
@@ -101,8 +89,8 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         plain_text_len := io.cmd.bits.rs2
         // plain_text_len := io.cmd.bits.inst.rs2
         resp_valid := true.B
-        //resp_rd_data := io.cmd.bits.rs1
-        resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
+        resp_rd_data := io.cmd.bits.rs1
+        //resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -152,12 +140,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         state := s_wait
         resp_valid := false.B
         tag_written := false.B
-        counter6 := Mux(counter6 < 2000000.U, counter6 + 1.U, 0.U)
-        when(counter6 > 1000000.U) {
-          state := s_end
-          resp_rd_data := "hc8c8c8c8".U
-        }
-
       }
     }.elsewhen(AEAD_Dec_ID) {
     }.elsewhen(Hash_ID) {
@@ -185,29 +167,12 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   ASCON.io.decrypt := false.B
   ASCON.io.hash_mode := false.B
   ASCON.io.tag_written := tag_written
-  wire_load_busy := state === s_mem_load_req || state === s_load
-  // wire_load_busy := false.B
-  wire_write_busy := state === s_mem_write_req || state === s_write
-  // wire_write_busy := false.B
-
-
-
-  ASCON.io.write_busy := wire_write_busy
-  ASCON.io.read_busy := wire_load_busy
+  ASCON.io.write_busy := state === s_mem_write_req || state === s_write
+  ASCON.io.read_busy := state === s_mem_load_req || state === s_load
 
 
   wire_cipher_stage := ASCON.io.cipher_stage
   wire_busy := ASCON.io.busy
-  wire_cipher_text := ASCON.io.C
-  wire_Tag := ASCON.io.Tag
-
-
-
-  // Response sent back to CPU
-  /* when(io.resp.fire()) {
-     state := s_idle
-   }*/
-
 
   io.busy := (state =/= s_idle)
   io.interrupt := false.B
@@ -219,9 +184,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   io.mem.req.bits.data := 0.U // Data to be stored
   io.mem.req.bits.phys := false.B // 0 since we dont need translation
 
- /* when(ASCON.io.load_block && !wire_load_busy && !wire_write_busy) {
-    need_load := true.B
-  }*/
 
   when(ASCON.io.C_valid) {
     vec_blocks_write(0) := ASCON.io.C(63, 32)
@@ -247,10 +209,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   switch(state) {
     is(s_idle) {
       io.busy := false.B
-      need_load := false.B
-      need_write := false.B
-      first_load := false.B
-      half_load_reg := 666.U
+      // first_load := false.B
       valid_ad_reg := false.B
       block_size := 2.U
       tag_written := false.B
@@ -297,10 +256,10 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
           state := s_wait
           valid_ad_reg := true.B
           block_counter := 0.U
-          when(!first_load) {
+          /*when(!first_load) {
             first_load := true.B
             half_load_reg := Cat(vec_blocks_load(0), vec_blocks_load(1))
-          }
+          }*/
 
         }
       }
@@ -316,7 +275,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       // LOAD
       when(ASCON.io.load_block) {
         state := s_mem_load_req
-        need_load := false.B
         valid_ad_reg := true.B
         block_counter := 0.U
         block_size := 2.U
@@ -325,7 +283,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       when(ASCON.io.C_valid) {
         state := s_mem_write_req
         block_size := 2.U
-        need_write := false.B
         block_counter := 0.U
         resp_rd_data := resp_rd_data | "h200".U
       }
@@ -405,7 +362,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
     io.busy := false.B
   }
   io.resp.valid := state === s_end || resp_valid
-  io.cmd.ready := state === s_idle
 
 }
 
