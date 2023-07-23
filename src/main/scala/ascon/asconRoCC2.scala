@@ -33,6 +33,10 @@ class asconRoCC2(r_c: Int, w_c: Int) extends Module {
 
   val Ascon = Module(new ascon128RoCC2)
   val MemFSM = Module(new memFSM(r_c, w_c))
+  val tag_reg = RegInit(Ascon.io.Tag)
+  when(Ascon.io.valid_tag){
+    tag_reg := Ascon.io.Tag
+  }
 
   Ascon.io.m_len := io.m_len
   Ascon.io.ad_len := io.ad_len
@@ -47,9 +51,11 @@ class asconRoCC2(r_c: Int, w_c: Int) extends Module {
   io.cipher_stage := Ascon.io.cipher_stage
   io.busy := Ascon.io.busy
   io.valid_tag := Ascon.io.valid_tag
-  io.Tag := Ascon.io.Tag
+  io.Tag := tag_reg
   io.Hash := Ascon.io.Hash
   io.valid_hash := Ascon.io.valid_hash
+
+  Ascon.io.tag_written := MemFSM.io.tag_written
 
 
   MemFSM.io.load_block := Ascon.io.load_block

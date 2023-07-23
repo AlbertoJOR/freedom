@@ -33,6 +33,8 @@ class ascon128RoCC2 extends Module {
     val Hash = Output(Vec(4, UInt(64.W)))
     val valid_ad = Input(Bool())
     val valid_hash = Output(Bool())
+
+    val tag_written = Input(Bool())
   })
 
   val MuxRate = Module(new MuxInRate)
@@ -91,6 +93,7 @@ class ascon128RoCC2 extends Module {
   Ctrl.io.c_init := io.init
   Ctrl.io.valid_per:= Asconp.io.valid
   Ctrl.io.busy_per := Asconp.io.busy
+  Ctrl.io.tag_written := io.tag_written
 
 
   val rate_in = Mux(Ctrl.io.ciphering, MuxMC.io.S_out, MuxRate.io.S0_xor)
@@ -101,6 +104,7 @@ class ascon128RoCC2 extends Module {
   Asconp.io.A := ToState.io.S
   Asconp.io.typePer := Ctrl.io.type_per
   Asconp.io.start := Ctrl.io.init_perm
+  Asconp.io.rst_per := Ctrl.io.rst_per
 
   TagGen.io.S_i := Asconp.io.S
   TagGen.io.key := Cat(io.Key(0), io.Key(1))

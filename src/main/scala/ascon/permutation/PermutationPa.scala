@@ -14,6 +14,7 @@ class PermutationPa extends Module {
     val ready = Output(Bool())
     val busy = Output(Bool())
     val valid = Output(Bool())
+    val rst_per = Input(Bool())
   })
   // This implementation of the permutation is able to perform
   // 2 rounds per cycle
@@ -29,6 +30,7 @@ class PermutationPa extends Module {
 
   ctrlPer.io.start := io.start
   ctrlPer.io.typePer := io.typePer
+  ctrlPer.io.rst_per := io.rst_per
   io.ready := ctrlPer.io.ready
   round := ctrlPer.io.round
   io.busy := ctrlPer.io.busy

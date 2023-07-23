@@ -43,6 +43,8 @@ class asconCtrlRocc2 extends Module {
     val read_busy = Input(Bool())
     val write_busy = Input(Bool())
     val load_block = Output(Bool())
+    val tag_written = Input(Bool())
+    val rst_per = Output(Bool())
 
 
   })
@@ -101,8 +103,12 @@ class asconCtrlRocc2 extends Module {
   io.load_block := (stateReg === s_ad && a_len_reg > 0.U) || (stateReg === s_plain && p_len_reg > 0.U) && !io.read_busy
   io.block_zero := block_zero
   io.has_inc_plain_block := has_inc_plain_block
+  io.rst_per := false.B
 
   //io.decrypt_mode_out := decrypt_mode_reg
+  when(io.tag_written){
+    c_tag_reg := false.B
+  }
 
 
   switch(stateReg) {
@@ -119,6 +125,7 @@ class asconCtrlRocc2 extends Module {
       last_block_reg := false.B
       has_inc_plain_block := false.B
       block_zero := false.B
+      io.rst_per := true.B
       //ciphering_reg := false.B
       when(io.c_init) {
         stateReg := s_set
@@ -149,8 +156,7 @@ class asconCtrlRocc2 extends Module {
     is(s_init) {
       when(io.busy_per) {
         init_perm_reg := false.B
-      }
-      when(io.valid_per && !io.busy_per) {
+      }.elsewhen(io.valid_per) {
         // Add key
         c_capacity_mux_reg := Mux(io.hash_mode, "b10001".U, "b01000".U)
         stateReg := Mux(io.hash_mode, s_m_absorb, s_ad)

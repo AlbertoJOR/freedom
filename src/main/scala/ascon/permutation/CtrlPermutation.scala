@@ -14,6 +14,7 @@ class CtrlPermutation extends Module {
     val selIn = Output(Bool())
     val busy = Output(Bool())
     val round = Output(UInt(4.W))
+    val rst_per = Input(Bool())
 
   })
 
@@ -31,6 +32,9 @@ class CtrlPermutation extends Module {
 
   when(io.start) {
     startReg := true.B
+  }
+  when(io.rst_per){
+    validReg := false.B
   }
 
   io.valid := validReg

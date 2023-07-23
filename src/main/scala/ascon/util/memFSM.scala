@@ -21,6 +21,7 @@ class memFSM(read_counter: Int, write_counter: Int) extends Module {
     val Data_out = Output(Vec(4, UInt(64.W)))
 
     val load_data = Output(UInt(64.W))
+    val tag_written = Output(Bool())
     val write_data = Input(UInt(64.W))
 
   })
@@ -36,6 +37,9 @@ class memFSM(read_counter: Int, write_counter: Int) extends Module {
   val ciph_addr = RegInit(0.U(4.W))
   val write_data = RegInit(0.U(64.W))
   val load_data = RegInit(0.U(64.W))
+  val tag_written = RegInit(false.B)
+
+  io.tag_written := tag_written
   io.load_data := load_data
   io.valid_ad := valid_ad_reg
   when(io.c_valid){
@@ -46,6 +50,7 @@ for (k <- 8 until 12) {
       }
   switch(stateReg) {
     is(s_idle) {
+      tag_written := false.B
       when(io.init) {
         as_addr := 0.U
         plain_addr := 4.U
@@ -71,6 +76,7 @@ for (k <- 8 until 12) {
         counter := 0.U
       }.elsewhen(io.valid){
         stateReg := s_idle
+        tag_written := true.B
       }
     }
     is(s_loading) {
@@ -92,7 +98,7 @@ for (k <- 8 until 12) {
       Data_File(ciph_addr) := write_data
       when(counter >= write_counter.asUInt) {
         stateReg := s_wait
-        write_data := write_data + 1.U
+        ciph_addr := ciph_addr + 1.U
         counter := 0.U
       }
     }
