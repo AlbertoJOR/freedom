@@ -303,6 +303,33 @@ class E300MyRoCC2xmem extends Config(
     }
   })
 )
+
+class MyRoCC3xmemConfig extends Config(
+  new WithNBreakpoints(2) ++
+    new WithNExtTopInterrupts(0) ++
+    new WithJtagDTM ++
+    new WithL1ICacheWays(2)        ++
+  new WithL1ICacheSets(256)      ++
+    new WithDefaultBtb ++
+    new WithMyRoCC3 ++
+    new TinyConfigxmem
+)
+
+class RoCC3xmem extends Config(
+  new E300DevKitPeripherals    ++
+    new MyRoCC3xmemConfig().alter((site, here, up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
+
 class RWConfigxmem extends Config(
   new WithNBreakpoints(2) ++
     new WithNExtTopInterrupts(0) ++
@@ -317,6 +344,33 @@ class RWConfigxmem extends Config(
 class E300RWxmem extends Config(
   new E300DevKitPeripherals    ++
     new RWConfigxmem().alter((site, here, up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
+
+
+class RWConfigxmem2 extends Config(
+  new WithNBreakpoints(2) ++
+    new WithNExtTopInterrupts(0) ++
+    new WithJtagDTM ++
+    new WithL1ICacheWays(2) ++
+    new WithL1ICacheSets(256) ++
+    new WithDefaultBtb ++
+    new WithRWRoCC2 ++
+    new TinyConfigxmem
+)
+
+class RWxmem2 extends Config(
+  new E300DevKitPeripherals    ++
+    new RWConfigxmem2().alter((site, here, up) => {
     case DTSTimebase => BigInt(32768)
     case JtagDTMKey => new JtagDTMConfig (
       idcodeVersion = 2,

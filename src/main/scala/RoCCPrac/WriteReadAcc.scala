@@ -101,7 +101,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         associated_data_len := io.cmd.bits.rs2
         resp_valid := true.B
         //resp_rd_data := io.cmd.bits.rs1
-        resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
+        resp_rd_data := Cat(block_size(2, 0), init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -111,7 +111,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         Tag_addr := io.cmd.bits.rs2
         resp_valid := true.B
         //resp_rd_data := io.cmd.bits.rs1
-        resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
+        resp_rd_data := Cat(block_size(2, 0), init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -120,7 +120,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         Nonce_value := 0.U
         resp_valid := true.B
         //resp_rd_data := 4.U
-        resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
+        resp_rd_data := Cat(block_size(2, 0), init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -129,7 +129,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
         Key_value := 0.U
         resp_valid := true.B
         //resp_rd_data := 123.U
-        resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
+        resp_rd_data := Cat(block_size(2, 0), init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
         when(io.resp.fire()) {
           io.busy := false.B
           resp_valid := false.B
@@ -178,7 +178,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   io.interrupt := false.B
   io.mem.req.valid := (state === s_mem_load_req || state === s_mem_write_req)
   io.mem.req.bits.addr := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)
-  io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)
+  io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)(5,0)
   io.mem.req.bits.cmd := M_XRD // M_XRD = load, M_XWR = write
   io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
   io.mem.req.bits.data := 0.U // Data to be stored
@@ -189,7 +189,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
     vec_blocks_write(0) := ASCON.io.C(63, 32)
     vec_blocks_write(1) := ASCON.io.C(31, 0)
   }
-  when(ASCON.io.valid_tag && (state =/= s_idle || state =/= s_end) ) {
+  when(ASCON.io.valid_tag && (state =/= s_idle || state =/= s_end)) {
     valid_tag_reg := true.B
     vec_blocks_write(0) := ASCON.io.Tag(0)(63, 32)
     vec_blocks_write(1) := ASCON.io.Tag(0)(31, 0)
@@ -225,7 +225,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       }*/
       resp_rd_data := resp_rd_data | "h2000".U
       io.mem.req.bits.addr := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)
-      io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)
+      io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)(5,0)
       io.mem.req.bits.cmd := M_XRD // M_XRD = load, M_XWR = write
       io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
       io.mem.req.bits.data := 0.U
@@ -256,10 +256,6 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
           state := s_wait
           valid_ad_reg := true.B
           block_counter := 0.U
-          /*when(!first_load) {
-            first_load := true.B
-            half_load_reg := Cat(vec_blocks_load(0), vec_blocks_load(1))
-          }*/
 
         }
       }
@@ -302,7 +298,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       }*/
 
       io.mem.req.bits.addr := cipher_text_addr
-      io.mem.req.bits.tag := cipher_text_addr(5, 0) // differentiate between responses
+      io.mem.req.bits.tag := cipher_text_addr(5,0) // differentiate between responses
       io.mem.req.bits.cmd := M_XWR // M_XRD = load, M_XWR = write
       io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
       io.mem.req.bits.data := vec_blocks_write(block_counter)
