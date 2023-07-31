@@ -41,6 +41,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   // When finished just write 1.U to the rd destination
   val resp_rd_data = RegInit(0.U(32.W))
   val block_counter = RegInit(0.U(32.W))
+  val tag_counter = RegInit(0.U(6.W))
 
   // ASCON Crtl
   val vec_blocks_write = RegInit(Vec(Seq.fill(4)(127.U(32.W))))
@@ -178,7 +179,8 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   io.interrupt := false.B
   io.mem.req.valid := (state === s_mem_load_req || state === s_mem_write_req)
   io.mem.req.bits.addr := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)
-  io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)(5,0)
+  io.mem.req.bits.tag := tag_counter
+  //io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)(5,0)
   io.mem.req.bits.cmd := M_XRD // M_XRD = load, M_XWR = write
   io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
   io.mem.req.bits.data := 0.U // Data to be stored
@@ -225,7 +227,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       }*/
       resp_rd_data := resp_rd_data | "h2000".U
       io.mem.req.bits.addr := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)
-      io.mem.req.bits.tag := Mux(wire_cipher_stage, plain_text_addr, associated_data_addr)(5,0)
+      io.mem.req.bits.tag := tag_counter
       io.mem.req.bits.cmd := M_XRD // M_XRD = load, M_XWR = write
       io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
       io.mem.req.bits.data := 0.U
@@ -248,6 +250,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       //      }
       resp_rd_data := resp_rd_data | "h4000".U
       when(io.mem.resp.valid) {
+        tag_counter := tag_counter +  1.U
         vec_blocks_load(block_counter) := io.mem.resp.bits.data
         block_counter := block_counter + 1.U
         when(block_counter < block_size - 1.U) {
@@ -298,7 +301,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       }*/
 
       io.mem.req.bits.addr := cipher_text_addr
-      io.mem.req.bits.tag := cipher_text_addr(5,0) // differentiate between responses
+      io.mem.req.bits.tag := tag_counter// differentiate between responses
       io.mem.req.bits.cmd := M_XWR // M_XRD = load, M_XWR = write
       io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
       io.mem.req.bits.data := vec_blocks_write(block_counter)
@@ -321,6 +324,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
       }*/
       when(io.mem.resp.valid) {
         //when(block_counter < 2.U) {
+        tag_counter := tag_counter + 1.U
         when(block_counter < block_size) {
           state := s_mem_write_req
         }.otherwise {

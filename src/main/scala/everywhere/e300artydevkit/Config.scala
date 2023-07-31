@@ -382,3 +382,29 @@ class RWxmem2 extends Config(
     }
   })
 )
+
+class RWConfigxmem3 extends Config(
+  new WithNBreakpoints(2) ++
+    new WithNExtTopInterrupts(0) ++
+    new WithJtagDTM ++
+    new WithL1ICacheWays(2) ++
+    new WithL1ICacheSets(256) ++
+    new WithDefaultBtb ++
+    new WithRWRoCC3 ++
+    new TinyConfigxmem
+)
+
+class RWxmem3 extends Config(
+  new E300DevKitPeripherals    ++
+    new RWConfigxmem3().alter((site, here, up) => {
+    case DTSTimebase => BigInt(32768)
+    case JtagDTMKey => new JtagDTMConfig (
+      idcodeVersion = 2,
+      idcodePartNum = 0x000,
+      idcodeManufId = 0x489,
+      debugIdleCycles = 5)
+    case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+      r.copy(icache = r.icache.map(_.copy(itimAddr = Some(0x8000000L))))
+    }
+  })
+)
