@@ -29,7 +29,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val resp_rd = RegInit(0.U(5.W)) //Reg(io.resp.bits.rd)
 
 
-  val s_idle :: s_mem_load_req :: s_load :: s_mem_write_req :: s_write :: s_wait :: s_end :: Nil = Enum(7)
+  val s_idle :: s_mem_load_req :: s_load :: s_mem_write_req :: s_write :: s_wait :: s_comp_tag :: s_end :: Nil = Enum(8)
   // Current state of the state machine
   val state = RegInit(s_idle)
 
@@ -44,7 +44,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val tag_counter = RegInit(0.U(6.W))
 
   // ASCON Crtl
- // val vec_blocks_write = RegInit(Vec(Seq.fill(4)(127.U(32.W))))
+  // val vec_blocks_write = RegInit(Vec(Seq.fill(4)(127.U(32.W))))
   val vec_blocks = RegInit(Vec(Seq.fill(8)(7.U(32.W)))) // for the HASH 256
 
 
@@ -94,6 +94,9 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val load_tag_valid = RegInit(false.B)
   val tag_value = RegInit("h99999999aaaaaaaabbbbbbbbcccccccc".U(128.W))
 
+  // Decrypt mode ///
+  val decrypt_mode = RegInit(false.B)
+  val tags_equal = RegInit(false.B)
 
   when(io.cmd.fire()) {
     when(AEAD_Enc_ID) {
@@ -111,13 +114,13 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         associated_data_addr := io.cmd.bits.rs1
         associated_data_len := io.cmd.bits.rs2
         resp_valid := true.B
-        //resp_rd_data := io.cmd.bits.rs1
-        resp_rd_data := Cat( init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
+        resp_rd_data := io.cmd.bits.rs1
+        //resp_rd_data := Cat( init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
       }.elsewhen(operation_ID === 3.U) { // Set  Tag
         cipher_text_addr := io.cmd.bits.rs1
         resp_valid := true.B
-        //resp_rd_data := io.cmd.bits.rs1
-        resp_rd_data := Cat( init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
+        resp_rd_data := io.cmd.bits.rs1
+        //resp_rd_data := Cat( init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
       }.elsewhen(operation_ID === 4.U) { // Set Nonce
         resp_rd_data := 0.U
         nonce_addr := io.cmd.bits.rs1
@@ -142,7 +145,8 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         state := s_wait
         resp_valid := false.B
         tag_written := false.B
-      }.elsewhen(operation_ID === 7.U){ // Load Tag *
+        decrypt_mode := false.B
+      }.elsewhen(operation_ID === 7.U) { // Load Tag *
         resp_rd_data := 0.U
         tag_addr := io.cmd.bits.rs1
         state := s_mem_load_req
@@ -151,6 +155,14 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         load_tag_valid := false.B
         block_counter := 0.U
 
+      }.elsewhen(operation_ID === 8.U) { // Init Dec
+        init_ascon := true.B
+        resp_rd_data := 0.U
+        state := s_wait
+        resp_valid := false.B
+        tag_written := false.B
+        decrypt_mode := true.B
+        tags_equal := false.B
       }
     }.elsewhen(AEAD_Dec_ID) {
     }.elsewhen(Hash_ID) {
@@ -175,7 +187,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   ASCON.io.Npub(0) := nonce_value(127, 64)
   ASCON.io.Npub(1) := nonce_value(63, 0)
   ASCON.io.init := init_ascon
-  ASCON.io.decrypt := false.B
+  ASCON.io.decrypt := decrypt_mode
   ASCON.io.hash_mode := false.B
   ASCON.io.tag_written := tag_written
   ASCON.io.write_busy := state === s_mem_write_req || state === s_write
@@ -220,10 +232,20 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
     resp_rd_data := Cat(vec_blocks(0)(7, 0), vec_blocks(1)(7, 0), vec_blocks(2)(7, 0), vec_blocks(3)(7, 0))
     valid_key := false.B
   }
-  when(load_tag_valid){
+  when(load_tag_valid) {
     tag_value := Cat(vec_blocks(0), vec_blocks(1), vec_blocks(2), vec_blocks(3))
     resp_rd_data := 4.U
     load_tag_valid := false.B
+  }
+
+  // Tag * === Tag
+  when(valid_tag_reg && decrypt_mode) {
+
+    when(tag_value === Cat(vec_blocks(0), vec_blocks(1), vec_blocks(2), vec_blocks(3))) {
+      tags_equal := true.B
+    }.otherwise {
+      tags_equal := false.B
+    }
   }
 
   val counter1 = RegInit(0.U(8.W))
@@ -289,7 +311,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         tag_counter := tag_counter + 1.U
         vec_blocks(block_counter) := io.mem.resp.bits.data
         block_counter := block_counter + 1.U
-        when(block_counter < Mux(load_nonce|| load_tag || load_key, 3.U, 1.U)) {
+        when(block_counter < Mux(load_nonce || load_tag || load_key, 3.U, 1.U)) {
           state := s_mem_load_req
         }.otherwise {
           valid_ad_reg := true.B
@@ -305,10 +327,10 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
             valid_key := true.B
             load_key := false.B
             resp_rd_data := resp_rd_data | "h200000".U
-          }.elsewhen(load_tag){
-           state := s_end
-           load_tag := false.B
-           load_tag_valid := true.B
+          }.elsewhen(load_tag) {
+            state := s_end
+            load_tag := false.B
+            load_tag_valid := true.B
           }.otherwise {
             state := s_wait
           }
@@ -338,8 +360,12 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
       }
 
       when(valid_tag_reg) {
-        resp_rd_data := resp_rd_data | "h40000".U
-        state := s_mem_write_req
+        // resp_rd_data := resp_rd_data | "h40000".U
+        when(decrypt_mode) {
+          state := s_comp_tag
+        }.otherwise {
+          state := s_mem_write_req
+        }
       }
     }
     is(s_mem_write_req) {
@@ -353,7 +379,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
       io.mem.req.bits.addr := cipher_text_addr
       io.mem.req.bits.cmd := M_XWR // M_XRD = load, M_XWR = write
       io.mem.req.bits.typ := MT_W // D = 8 bytes, W = 4, H = 2, B = 1
-      io.mem.req.bits.data := vec_blocks(Mux(valid_tag_reg,block_counter, block_counter+2.U))
+      io.mem.req.bits.data := vec_blocks(Mux(valid_tag_reg, block_counter, block_counter + 2.U))
       // Memory request sent
       when(io.mem.req.fire()) {
         cipher_text_addr := cipher_text_addr + 4.U
@@ -389,12 +415,22 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         }
       }
     }
+    is(s_comp_tag) {
+      state := s_end
+      when(tags_equal) {
+        resp_rd_data := "hffffffff".U
+      }.otherwise {
+        resp_rd_data := "hf0f0f0f0".U
+      }
+    }
 
 
     is(s_end) {
       // resp_rd_data := resp_rd_data | "h20000".U
       // resp_rd_data := half_load_reg(47, 16)
       resp_valid := true.B
+      decrypt_mode := false.B
+      tags_equal := false.B
       // resp_rd_data := 8.U // Identify the end of the program
       block_counter := 0.U
       state := s_idle
