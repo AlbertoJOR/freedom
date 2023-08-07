@@ -55,7 +55,11 @@ class asconRoCC2(r_c: Int, w_c: Int) extends Module {
   io.Hash := Ascon.io.Hash
   io.valid_hash := Ascon.io.valid_hash
 
+
   Ascon.io.tag_written := MemFSM.io.tag_written
+  Ascon.io.hash_written := MemFSM.io.hash_written
+  MemFSM.io.hash_valid := Ascon.io.valid_hash
+  MemFSM.io.hash_mode := io.hash_mode
 
 
   MemFSM.io.load_block := Ascon.io.load_block

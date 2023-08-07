@@ -17,7 +17,7 @@ class ascon128RoCC2 extends Module {
     val hash_mode = Input(Bool())
 
     // RoCC Control
-    val write_busy  = Input(Bool())
+    val write_busy = Input(Bool())
     val read_busy = Input(Bool())
     val load_block = Output(Bool())
     val cipher_stage = Output(Bool())
@@ -29,12 +29,13 @@ class ascon128RoCC2 extends Module {
     val C_valid = Output(Bool()) // Load block
     // Module Tag
     val valid_tag = Output(Bool())
-    val Tag  = Output(Vec(2, UInt(64.W)))
+    val Tag = Output(Vec(2, UInt(64.W)))
     val Hash = Output(Vec(4, UInt(64.W)))
     val valid_ad = Input(Bool())
     val valid_hash = Output(Bool())
 
     val tag_written = Input(Bool())
+    val hash_written = Input(Bool())
   })
 
   val MuxRate = Module(new MuxInRate)
@@ -45,15 +46,15 @@ class ascon128RoCC2 extends Module {
   val Ctrl = Module(new asconCtrlRocc2)
   val Asconp = Module(new PermutationPa)
   val HashReg = RegInit(VecInit(Seq.fill(4)(0.U(64.W))))
-  val randFSM= Module(new RandFSM)
+  val randFSM = Module(new RandFSM)
   val write_block_reg = RegInit(false.B)
- // val trivium = Module(new trivium)
+  // val trivium = Module(new trivium)
   val kmu = Module(new KMU(8))
 
   MuxRate.io.as_data := io.AD
-  MuxRate.io.iv := Mux(io.hash_mode, "h00400c0000000100".U ,"h80400c0600000000".U)
+  MuxRate.io.iv := Mux(io.hash_mode, "h00400c0000000100".U, "h80400c0600000000".U)
   MuxRate.io.rate_in := TagGen.io.rate_o
-  MuxRate.io.c_init  := Ctrl.io.c_rate_mux(2)
+  MuxRate.io.c_init := Ctrl.io.c_rate_mux(2)
   MuxRate.io.c_as_dt := Ctrl.io.c_rate_mux(1)
   MuxRate.io.c_a_last := Ctrl.io.c_rate_mux(0)
   MuxRate.io.a_bytes := Ctrl.io.bytes_pad
@@ -63,10 +64,10 @@ class ascon128RoCC2 extends Module {
   MuxCap.io.nonce := Cat(io.Npub(0), io.Npub(1))
   MuxCap.io.capacity_in := TagGen.io.capacity_o
   MuxCap.io.c_init := Ctrl.io.c_capacity_mux(4)
-  MuxCap.io.c_a_init   := Ctrl.io.c_capacity_mux(3)
-  MuxCap.io.c_a_domain   := Ctrl.io.c_capacity_mux(2)
-  MuxCap.io.c_no_a   := Ctrl.io.c_capacity_mux(1)
-  MuxCap.io.c_fin   := Ctrl.io.c_capacity_mux(0)
+  MuxCap.io.c_a_init := Ctrl.io.c_capacity_mux(3)
+  MuxCap.io.c_a_domain := Ctrl.io.c_capacity_mux(2)
+  MuxCap.io.c_no_a := Ctrl.io.c_capacity_mux(1)
+  MuxCap.io.c_fin := Ctrl.io.c_capacity_mux(0)
 
   MuxMC.io.plain := io.M
   MuxMC.io.rate := TagGen.io.rate_o
@@ -79,11 +80,12 @@ class ascon128RoCC2 extends Module {
   MuxMC.io.has_inc_block := Ctrl.io.has_inc_plain_block
   io.C := MuxMC.io.cipher_text
 
-  when(io.write_busy){
+  when(io.write_busy) {
     write_block_reg := false.B
-  }.elsewhen(MuxMC.io.valid){
+  }.elsewhen(MuxMC.io.valid && Ctrl.io.busy) {
     write_block_reg := true.B
   }
+
   //io.C_valid:= Mux(io.write_busy, false.B, MuxMC.io.valid)
   io.C_valid := write_block_reg
 
@@ -91,7 +93,7 @@ class ascon128RoCC2 extends Module {
   Ctrl.io.asso_len := io.ad_len
   Ctrl.io.plain_len := io.m_len
   Ctrl.io.c_init := io.init
-  Ctrl.io.valid_per:= Asconp.io.valid
+  Ctrl.io.valid_per := Asconp.io.valid
   Ctrl.io.busy_per := Asconp.io.busy
   Ctrl.io.tag_written := io.tag_written
 
@@ -124,8 +126,8 @@ class ascon128RoCC2 extends Module {
   Ctrl.io.hash_mode := io.hash_mode
   MuxMC.io.hash_stage := Ctrl.io.hash_stage
   io.Hash := HashReg
-  when(Ctrl.io.hash_stage && MuxMC.io.valid ){
-    HashReg(Ctrl.io.hash_index(1,0)) := MuxMC.io.cipher_text
+  when(Ctrl.io.hash_stage && write_block_reg) {
+    HashReg(Ctrl.io.hash_index(1, 0)) := MuxMC.io.cipher_text
   }
 
   // RoCC Ctrl
@@ -151,6 +153,7 @@ class ascon128RoCC2 extends Module {
   kmu.io.delete_key := false.B
   kmu.io.get_master := false.B
 
+  Ctrl.io.hash_written := io.hash_written
 
 
 }

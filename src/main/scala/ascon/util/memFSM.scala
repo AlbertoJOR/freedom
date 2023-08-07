@@ -22,6 +22,9 @@ class memFSM(read_counter: Int, write_counter: Int) extends Module {
 
     val load_data = Output(UInt(64.W))
     val tag_written = Output(Bool())
+    val hash_written = Output(Bool())
+    val hash_valid = Input(Bool())
+    val hash_mode = Input(Bool())
     val write_data = Input(UInt(64.W))
 
   })
@@ -38,8 +41,10 @@ class memFSM(read_counter: Int, write_counter: Int) extends Module {
   val write_data = RegInit(0.U(64.W))
   val load_data = RegInit(0.U(64.W))
   val tag_written = RegInit(false.B)
+  val hash_written = RegInit(false.B)
 
   io.tag_written := tag_written
+  io.hash_written := hash_written
   io.load_data := load_data
   io.valid_ad := valid_ad_reg
   when(io.c_valid){
@@ -51,6 +56,8 @@ for (k <- 8 until 12) {
   switch(stateReg) {
     is(s_idle) {
       tag_written := false.B
+      hash_written := false.B
+      valid_ad_reg := false.B
       when(io.init) {
         as_addr := 0.U
         plain_addr := 4.U
@@ -77,6 +84,12 @@ for (k <- 8 until 12) {
       }.elsewhen(io.valid){
         stateReg := s_idle
         tag_written := true.B
+      }.elsewhen(io.hash_valid){
+        stateReg := s_idle
+        hash_written := true.B
+      }
+      when(io.hash_mode && io.ciphering){
+        valid_ad_reg := false.B
       }
     }
     is(s_loading) {

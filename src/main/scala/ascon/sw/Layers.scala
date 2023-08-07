@@ -143,7 +143,7 @@ object ASCON {
 
   }
 
-  def permutationa(S: Array[BigInt], rounds: Int): Array[BigInt] = {
+  def permutationa(S: Array[BigInt], rounds: Int, debug: Boolean = false): Array[BigInt] = {
 
     var a = 0;
     if (rounds == 8) {
@@ -154,11 +154,11 @@ object ASCON {
     var S_out = permutation(S, a)
 
     //println(s"a = $a")
-    printState(S_out, s"a = $a")
+    printState(S_out, s"a = $a",debug)
     for (b <- a + 1 until 12) {
       //println(s"b = $b")
       S_out = permutation(S_out, b)
-      printState(S_out, s"a = $b")
+      printState(S_out, s"a = $b", debug)
     }
     S_out
   }
@@ -395,7 +395,7 @@ object ASCON {
 
   }
 
-  def ascon_Hash(m: Array[BigInt], mlen: Int, hash: Array[BigInt]): Unit = {
+  def ascon_Hash(m: Array[BigInt], mlen: Int, hash: Array[BigInt], debug : Boolean = false): Unit = {
     var State = Array(
       BigInt(0),
       BigInt(0),
@@ -405,39 +405,35 @@ object ASCON {
     )
     val IV = BigInt("00400c0000000100", 16)
     State = init_Hash(State, IV)
-    printState(State, "After init")
+    printState(State, "After init", debug)
 
     var mlen_aux = mlen
     var mindex = 0
     if (mlen_aux > 0) {
       while (mlen_aux >= 8) {
         State(0) ^= m(mindex)
-        printState(State, s"Absorb M [$mindex]")
-        State = permutationa(State, 12)
+        printState(State, s"Absorb M [$mindex]", debug)
+        State = permutationa(State, 12, debug)
 
         mindex += 1
         mlen_aux -= 8
       }
       State(0) ^= pad(m(mindex), mlen_aux)
-      printState(State, "Paded data")
-      State = permutationa(State, 12)
-      printState(State, "Paded round data")
+      printState(State, "Paded data", debug)
+      State = permutationa(State, 12, debug)
+      printState(State, "Fishish absorbtion", debug)
     }
     // Squeeze hash
     var i = 0
     while (i < 4) {
       hash(i) = State(0)
-      printState(State, s"Extract Hash [$i]")
+      printState(State, s"Extract Hash [$i]", debug)
       if (i < 4 - 1) {
-        State = permutationa(State, 12)
+        State = permutationa(State, 12, debug)
       }
       i += 1
     }
-
-
   }
-
-
 }
 
 
@@ -460,7 +456,8 @@ object Hello extends App {
     BigInt("1112131425262728",16),
     BigInt("393a3b3c0d0e0f00",16),
     BigInt("4142434455565758",16),
-    BigInt("696a6b6c7d7e7f70",16)
+    BigInt("696a6b6c7d7e7f70",16),
+    BigInt(0)
   )
 
   var assodat = Array(
@@ -511,23 +508,28 @@ object Hello extends App {
     BigInt("0000000000000000", 16)
   )
 
-  val mlen = 10
-  val adlen = 10
-  val res2 = ASCON.ascon_encription(message,mlen,assodat,c,adlen,Numpub,Key)
+  val mlen = 32
+  val adlen = 11
+  val res = ASCON.ascon_Hash(message,mlen,hash,true)
+  println("Hash:")
+  println(hash(0).toString(16))
+  println(hash(1).toString(16))
+  println(hash(2).toString(16))
+  println(hash(3).toString(16))
+  println(hash(4).toString(16))
+  // val res2 = ASCON.ascon_encription(message,mlen,assodat,c,adlen,Numpub,Key)
   // val res = ASCON.ascon_decription(c, mlen, assodat,dec, adlen, Numpub, Key)
 
-  println(cipherTextTag.Tag(0).toString(16) + " " + cipherTextTag.Tag(1).toString(16))
-  println()
   // println(cipherTextTag.Tag2(0).toString(16) + " " + cipherTextTag.Tag2(1).toString(16))
 
 //  val res2 = ASCON.ascon_Hash(message, mlen, hash)
-  println("Cipheredtext")
+  /*println("Cipheredtext")
   println(c(0).toString(16))
   println(c(1).toString(16))
   println(c(2).toString(16))
   println(c(3).toString(16))
   println(c(4).toString(16))
-  println(c(5).toString(16))
+  println(c(5).toString(16))*/
 //  println()
 
 

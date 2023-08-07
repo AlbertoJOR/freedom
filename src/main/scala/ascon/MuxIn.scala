@@ -134,6 +134,9 @@ class CipheredMux extends Module {
     when(io.c_c_last) { // "b11".U
       io.valid := true.B
     }
+    when(!io.hash_stage && io.hash_mode){
+      io.valid := false.B
+    }
 
 
   }.otherwise {

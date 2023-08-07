@@ -45,6 +45,7 @@ class asconCtrlRocc2 extends Module {
     val load_block = Output(Bool())
     val tag_written = Input(Bool())
     val rst_per = Output(Bool())
+    val hash_written = Input(Bool())
 
 
   })
@@ -100,13 +101,15 @@ class asconCtrlRocc2 extends Module {
   io.hash_index := hash_index_counter
   io.valid_hash := valid_hash
   io.hash_stage := hash_stage
-  io.load_block := (stateReg === s_ad && a_len_reg > 0.U) || (stateReg === s_plain && p_len_reg > 0.U) && !io.read_busy
+  io.load_block := ((stateReg === s_ad && a_len_reg > 0.U) ||
+    (stateReg === s_plain && p_len_reg > 0.U) ||
+    (stateReg === s_m_absorb && !last_block_reg)) && !io.read_busy
   io.block_zero := block_zero
   io.has_inc_plain_block := has_inc_plain_block
   io.rst_per := false.B
 
   //io.decrypt_mode_out := decrypt_mode_reg
-  when(io.tag_written){
+  when(io.tag_written) {
     c_tag_reg := false.B
   }
 
@@ -132,13 +135,16 @@ class asconCtrlRocc2 extends Module {
         io.busy := true.B
         c_tag_reg := false.B
       }
+      when(io.hash_written){
+        valid_hash := false.B
+      }
 
     }
     is(s_set) {
       has_associated_data := io.asso_len > 0.U
       has_plain_data := io.plain_len > 0.U
       has_inc_block := io.plain_len < 8.U
-      has_inc_plain_block := io.plain_len(2,0) <= 7.U && io.plain_len(2,0) > 0.U
+      has_inc_plain_block := io.plain_len(2, 0) <= 7.U && io.plain_len(2, 0) > 0.U
       type_per_reg := "b00".U // 12 rounds
       c_rate_mux_reg := "b100".U // add IV
       c_capacity_mux_reg := Mux(io.hash_mode, "b10001".U, "b10000".U) // add key || nonce
@@ -320,11 +326,11 @@ class asconCtrlRocc2 extends Module {
       when(has_plain_data) {
         when(p_len_reg >= 8.U && !io.busy_per) {
           p_len_reg := p_len_reg - 8.U
-          init_perm_reg := true.B
+          initialize_per := true.B
           stateReg := s_m_absorb_process
           bytes_pad_reg := 8.U
         }.elsewhen(p_len_reg >= 0.U && p_len_reg < 8.U && !last_block_reg) {
-          init_perm_reg := true.B
+          initialize_per := true.B
           stateReg := s_m_absorb_process
           bytes_pad_reg := p_len_reg
           c_cipher_mux_reg := "b11".U
@@ -347,10 +353,15 @@ class asconCtrlRocc2 extends Module {
 
     }
     is(s_m_absorb_process) {
-      when(io.busy_per) {
-        init_perm_reg := false.B
-      }.elsewhen(io.valid_per && !init_perm_reg) {
-        stateReg := s_m_absorb
+      when(!io.read_busy) {
+        when(initialize_per) {
+          init_perm_reg := true.B
+          initialize_per := false.B
+        }.elsewhen(io.busy_per) {
+          init_perm_reg := false.B
+        }.elsewhen(io.valid_per && !init_perm_reg) {
+          stateReg := s_m_absorb
+        }
       }
     }
 
@@ -360,35 +371,41 @@ class asconCtrlRocc2 extends Module {
       c_rate_mux_reg := "b011".U // Just pas the rate
       c_cipher_mux_reg := "b10".U
       c_capacity_mux_reg := "b00000".U
-      when(hash_len_reg >= 8.U && !io.busy_per) {
-        hash_len_reg := hash_len_reg - 8.U
-        init_perm_reg := true.B
-        when(hash_len_reg < 32.U) {
-          hash_index_counter := hash_index_counter + 1.U
+      when(!io.write_busy) {
+        when(hash_len_reg >= 8.U && !io.busy_per) {
+          hash_len_reg := hash_len_reg - 8.U
+          initialize_per := true.B
+          when(hash_len_reg < 32.U) {
+            hash_index_counter := hash_index_counter + 1.U
+          }
+          stateReg := s_hash_proces
+          bytes_pad_reg := 8.U
+          when(first_block_reg) {
+            first_block_reg := false.B
+          }
+        }.elsewhen(hash_len_reg < 8.U) {
+          last_block_reg := true.B
+          last_cipher_block_reg := true.B
+          stateReg := s_idle
+          valid_hash := true.B
+          hash_stage := false.B
+          first_block_reg := true.B
+          initialize_per := false.B
         }
-        stateReg := s_hash_proces
-        bytes_pad_reg := 8.U
-        when(first_block_reg) {
-          first_block_reg := false.B
-        }
-      }.elsewhen(hash_len_reg < 8.U) {
-        last_block_reg := true.B
-        last_cipher_block_reg := true.B
-        stateReg := s_idle
-        valid_hash := true.B
-        hash_stage := false.B
-        first_block_reg := true.B
-        init_perm_reg := false.B
+
       }
-
-
     }
     is(s_hash_proces) {
-      when(io.busy_per) {
-        init_perm_reg := false.B
-        c_cipher_mux_reg := "b00".U
-      }.elsewhen(io.valid_per && !init_perm_reg) {
-        stateReg := s_hash_squeeze
+      when(!io.read_busy) {
+        when(initialize_per) {
+          init_perm_reg := true.B
+          initialize_per := false.B
+        }.elsewhen(io.busy_per) {
+          init_perm_reg := false.B
+          c_cipher_mux_reg := "b00".U
+        }.elsewhen(io.valid_per && !init_perm_reg) {
+          stateReg := s_hash_squeeze
+        }
       }
     }
 

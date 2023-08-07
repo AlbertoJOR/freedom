@@ -39,7 +39,7 @@ class PermutationPa extends Module {
 
   val stateReg = RegInit(VecInit(Seq.fill(5)(0.U(64.W))))
 
-  val dataInPer = Mux(ctrlPer.io.selIn, inputReg, stateReg)
+  val dataInPer = Mux(ctrlPer.io.selIn, io.A, stateReg)
 
   per1.io.A := dataInPer
   per1.io.round := round
