@@ -46,6 +46,7 @@ class asconCtrlRocc2 extends Module {
     val tag_written = Input(Bool())
     val rst_per = Output(Bool())
     val hash_written = Input(Bool())
+    val can_write = Output(Bool())
 
 
   })
@@ -54,6 +55,7 @@ class asconCtrlRocc2 extends Module {
 
 
   // Default values of the Outputs
+
 
   val bytes_pad_reg = RegInit(0.U(4.W)) // Sends value to the padder from complete block 8 to 1 bytes
   val c_rate_mux_reg = RegInit(0.U(3.W)) // (io.c_init, io.c_as_dt, io.c_a_last)
@@ -85,9 +87,13 @@ class asconCtrlRocc2 extends Module {
   val hash_stage = RegInit(false.B)
   val valid_hash = RegInit(false.B)
   val block_zero = RegInit(false.B)
+  val hash_write = Wire(Bool())
+  hash_write := false.B
 
   // State Reg
   val stateReg = RegInit(s_rst)
+  // val s_rst :: s_idle :: s_set :: s_init :: s_ad :: s_ad_absorb :: s_plain :: s_plain_absorb :: s_tag :: s_m_absorb :: s_m_absorb_process :: s_hash_squeeze :: s_hash_proces :: Nil = Enum(13)
+  io.can_write := stateReg === s_plain || stateReg === s_plain_absorb || stateReg ===s_tag || stateReg === s_hash_proces||(stateReg === s_hash_squeeze && hash_write)
   io.bytes_pad := bytes_pad_reg
   io.c_rate_mux := c_rate_mux_reg
   io.c_capacity_mux := c_capacity_mux_reg
@@ -367,6 +373,7 @@ class asconCtrlRocc2 extends Module {
 
 
     is(s_hash_squeeze) {
+      hash_write := true.B
       type_per_reg := "b00".U
       c_rate_mux_reg := "b011".U // Just pas the rate
       c_cipher_mux_reg := "b10".U
@@ -384,6 +391,7 @@ class asconCtrlRocc2 extends Module {
             first_block_reg := false.B
           }
         }.elsewhen(hash_len_reg < 8.U) {
+          hash_write := false.B
           last_block_reg := true.B
           last_cipher_block_reg := true.B
           stateReg := s_idle
@@ -396,6 +404,7 @@ class asconCtrlRocc2 extends Module {
       }
     }
     is(s_hash_proces) {
+      hash_write := true.B
       when(!io.read_busy) {
         when(initialize_per) {
           init_perm_reg := true.B

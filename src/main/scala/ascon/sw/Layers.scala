@@ -327,7 +327,7 @@ object ASCON {
   }
 
   def ascon_decription(c: Array[BigInt], clen: Int, ad: Array[BigInt], dec : Array[BigInt],
-                       adlen: Int, npub: Array[BigInt], key: Array[BigInt]): Unit = {
+                       adlen: Int, npub: Array[BigInt], key: Array[BigInt], debug : Boolean = false): Unit = {
     var State = Array(
       BigInt(0),
       BigInt(0),

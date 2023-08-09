@@ -82,7 +82,7 @@ class ascon128RoCC2 extends Module {
 
   when(io.write_busy) {
     write_block_reg := false.B
-  }.elsewhen(MuxMC.io.valid && Ctrl.io.busy) {
+  }.elsewhen(MuxMC.io.valid && Ctrl.io.busy && Ctrl.io.can_write) {
     write_block_reg := true.B
   }
 
