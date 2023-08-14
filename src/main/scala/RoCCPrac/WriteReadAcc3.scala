@@ -62,6 +62,8 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val D_Init = Function === "h18".U
   val H_Set_M = Function === "h31".U
   val H_Init = Function === "h32".U
+  val R_Seed = Function === "h41".U
+  val R_Rand = Function === "h42".U
 
 
 
@@ -89,7 +91,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val valid_tag_reg = RegInit(false.B)
 
   ///////////ASCON Declaration ////////////////
-  val ASCON = Module(new ascon128RoCC2)
+  val ASCON = Module(new ascon128RoCC2(true))
 
   /// TAG Counter //
   val nonce_value = RegInit("h11111111222222223333333344444444".U(128.W))
@@ -115,6 +117,9 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   // Hash Mode ///
   val hash_mode = RegInit(false.B)
   val hash_written = RegInit(false.B)
+  val random = RegInit(false.B)
+  val seed = RegInit(false.B)
+  //val random_mode = RegInit(false.B)
   /*  val counter1 = RegInit(0.U(8.W))
     val counter2 = RegInit(0.U(8.W))
     val counter3 = RegInit(0.U(8.W))
@@ -189,121 +194,32 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
       cipher_text_addr := io.cmd.bits.rs1
       hash_mode := true.B
       init_ascon := true.B
+    }.elsewhen(R_Seed) {
+      decrypt_mode := false.B
+      tag_written := false.B
+      tags_equal := false.B
+      hash_mode := false.B
+      //random_mode := true.B
+      seed:= true.B
+      state := s_wait
+      resp_valid := false.B
+    }.elsewhen(R_Rand) {
+      decrypt_mode := false.B
+      tag_written := false.B
+      tags_equal := false.B
+      hash_mode := false.B
+      //random_mode := true.B
+      random := true.B
+      cipher_text_addr := io.cmd.bits.rs1
+      plain_text_len := io.cmd.bits.rs2
+      resp_valid := false.B
+      state := s_wait
     }.otherwise {
       state := s_end
       resp_valid := true.B
       resp_rd_data := "ha1a1a1a1".U
     }
   }
-  /*
-    when(io.cmd.fire()) {
-      hash_written := false.B
-      when(AEAD_Enc_ID) {
-        resp_rd := io.cmd.bits.inst.rd
-        resp_rd_data := "h0".U
-        hash_mode := false.B
-        when(operation_ID === 1.U) { // Set P
-          plain_text_addr := io.cmd.bits.rs1
-          plain_text_len := io.cmd.bits.rs2
-          // plain_text_len := io.cmd.bits.inst.rs2
-          resp_valid := true.B
-          resp_rd_data := io.cmd.bits.rs1
-          //resp_rd_data := Cat(block_size(2,0),init_ascon,wire_busy,ASCON.io.valid_tag,wire_cipher_stage,ASCON.io.C_valid, valid_tag_reg,state === s_idle,state(2,0))
-
-        }.elsewhen(operation_ID === 2.U) { // Set AD
-          associated_data_addr := io.cmd.bits.rs1
-          associated_data_len := io.cmd.bits.rs2
-          resp_valid := true.B
-          resp_rd_data := io.cmd.bits.rs1
-          //resp_rd_data := Cat( init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
-        }.elsewhen(operation_ID === 3.U) { // Set  Tag
-          cipher_text_addr := io.cmd.bits.rs1
-          resp_valid := true.B
-          resp_rd_data := io.cmd.bits.rs1
-          //resp_rd_data := Cat( init_ascon, wire_busy, ASCON.io.valid_tag, wire_cipher_stage, ASCON.io.C_valid, valid_tag_reg, state === s_idle, state(2, 0))
-        }.elsewhen(operation_ID === 4.U) { // Set Nonce
-          resp_rd_data := 0.U
-          nonce_addr := io.cmd.bits.rs1
-          state := s_mem_load_req
-          resp_valid := false.B
-          load_nonce := true.B
-          valid_nonce := false.B
-          block_counter := 0.U
-
-        }.elsewhen(operation_ID === 5.U) { // Use Key
-          resp_rd_data := 0.U
-          key_addr := io.cmd.bits.rs1
-          state := s_mem_load_req
-          resp_valid := false.B
-          load_key := true.B
-          valid_key := false.B
-          block_counter := 0.U
-
-        }.elsewhen(operation_ID === 6.U) { // Init Enc
-          init_ascon := true.B
-          resp_rd_data := 0.U
-          state := s_wait
-          resp_valid := false.B
-          tag_written := false.B
-          decrypt_mode := false.B
-        }.elsewhen(operation_ID === 7.U) { // Load Tag *
-          resp_rd_data := 0.U
-          tag_addr := io.cmd.bits.rs1
-          state := s_mem_load_req
-          resp_valid := false.B
-          load_tag := true.B
-          load_tag_valid := false.B
-          block_counter := 0.U
-
-        }.elsewhen(operation_ID === 8.U) { // Init Dec
-          init_ascon := true.B
-          resp_rd_data := 0.U
-          state := s_wait
-          resp_valid := false.B
-          tag_written := false.B
-          decrypt_mode := true.B
-          tags_equal := false.B
-        }.elsewhen(operation_ID === 9.U) {
-          // Reuse the plain text addr and length for the hash
-          plain_text_addr := io.cmd.bits.rs1
-          plain_text_len := io.cmd.bits.rs2
-          // plain_text_len := io.cmd.bits.inst.rs2
-          resp_valid := true.B
-          resp_rd_data := io.cmd.bits.rs2
-          decrypt_mode := false.B
-          tag_written := false.B
-          tags_equal := false.B
-        }.elsewhen(operation_ID === 10.U) { // reuse the cipher text addr for the hash return
-          decrypt_mode := false.B
-          tag_written := false.B
-          tags_equal := false.B
-          state := s_wait
-          resp_valid := false.B
-          cipher_text_addr := io.cmd.bits.rs1
-          hash_mode := true.B
-          init_ascon := true.B
-          vec_blocks(0) := 0.U
-          vec_blocks(1) := 0.U
-          vec_blocks(2) := 0.U
-          vec_blocks(3) := 0.U
-          resp_rd_data := "h0".U
-          block_counter := 0.U
-          counter1 := 0.U
-          counter2 := 0.U
-          counter3 := 0.U
-          counter4 := 0.U
-          counter5 := 0.U
-          hashcounter := 0.U
-        }
-      }.elsewhen(AEAD_Dec_ID) {
-      }.elsewhen(Hash_ID) {
-      }.elsewhen(Rand_ID) {
-      }.elsewhen(KMU_ID) {
-      }.otherwise {
-        state := s_end
-        resp_rd_data := "ha1a1a1a1".U
-      }
-    }*/
 
 
   //// Inputs
@@ -322,6 +238,9 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   ASCON.io.tag_written := tag_written
   ASCON.io.write_busy := state === s_mem_write_req || state === s_write
   ASCON.io.read_busy := state === s_mem_load_req || state === s_load
+  ASCON.io.seed := seed
+  ASCON.io.random := random
+
 
 
   wire_cipher_stage := ASCON.io.cipher_stage
@@ -341,6 +260,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
 
 
   when(ASCON.io.C_valid) {
+    resp_rd_data := resp_rd_data | "h20000000".U
     vec_blocks(2) := ASCON.io.C(63, 32)
     vec_blocks(3) := ASCON.io.C(31, 0)
   }
@@ -459,6 +379,8 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
     is(s_wait) {
       init_ascon := false.B
       load_nonce := false.B
+      seed := false.B
+      random := false.B
       resp_rd_data := resp_rd_data | "h1000".U
       /*counter3 := counter3 +& 1.U
       when(counter3 >= "hf0".U) {
@@ -479,6 +401,11 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         //counter3 := counter3 + 1.U
         state := s_mem_write_req
         resp_rd_data := resp_rd_data | "h200".U
+      }
+      when( ASCON.io.finish_rand){
+        state := s_end
+        // random_mode := false.B
+        resp_rd_data := resp_rd_data | "h40000000".U
       }
 
       when(valid_tag_reg) {

@@ -79,7 +79,7 @@ class RWImp(outer: WriteReadAcc)(implicit p: Parameters) extends LazyRoCCModuleI
   val valid_tag_reg = RegInit(false.B)
 
   ///////////ASCON Declaration ////////////////
-  val ASCON = Module(new ascon128RoCC2)
+  val ASCON = Module(new ascon128RoCC2(false))
 
   when(io.cmd.fire()) {
     when(AEAD_Enc_ID) {

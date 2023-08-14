@@ -3,8 +3,9 @@ package ascon
 import ascon.permutation.PermutationPa
 import chisel3._
 import chisel3.util._
+import rand._
 
-class ascon128RoCC2 extends Module {
+class ascon128RoCC2(withTrivium: Boolean) extends Module {
   val io = IO(new Bundle() {
     val m_len = Input(UInt(32.W))
     val ad_len = Input(UInt(32.W))
@@ -36,6 +37,11 @@ class ascon128RoCC2 extends Module {
 
     val tag_written = Input(Bool())
     val hash_written = Input(Bool())
+
+    // RAMDOM//
+    val random = Input(Bool())
+    val seed = Input(Bool())
+    val finish_rand= Output(Bool())
   })
 
   val MuxRate = Module(new MuxInRate)
@@ -46,10 +52,19 @@ class ascon128RoCC2 extends Module {
   val Ctrl = Module(new asconCtrlRocc2)
   val Asconp = Module(new PermutationPa)
   val HashReg = RegInit(VecInit(Seq.fill(4)(0.U(64.W))))
-  val randFSM = Module(new RandFSM)
   val write_block_reg = RegInit(false.B)
+  // RANDOM ///
+  val trivium = if (withTrivium) {
+    Module(new trivium)
+  } else {
+    Module(new notTrivium)
+  }
   // val trivium = Module(new trivium)
-  val kmu = Module(new KMU(8))
+  val randFSM = Module(new randFSM2)
+  val AState = Module(new randAsconState)
+
+  val random_mode = randFSM.io.rand_mux || randFSM.io.seed_mux
+  //val kmu = Module(new KMU(8))
 
   MuxRate.io.as_data := io.AD
   MuxRate.io.iv := Mux(io.hash_mode, "h00400c0000000100".U, "h80400c0600000000".U)
@@ -78,7 +93,7 @@ class ascon128RoCC2 extends Module {
   MuxMC.io.decrypt_mode := io.decrypt
   MuxMC.io.block_zero := Ctrl.io.block_zero
   MuxMC.io.has_inc_block := Ctrl.io.has_inc_plain_block
-  io.C := MuxMC.io.cipher_text
+  io.C := Mux(randFSM.io.rand_mux, AState.io.state(0), MuxMC.io.cipher_text)
 
   when(io.write_busy) {
     write_block_reg := false.B
@@ -86,8 +101,7 @@ class ascon128RoCC2 extends Module {
     write_block_reg := true.B
   }
 
-  //io.C_valid:= Mux(io.write_busy, false.B, MuxMC.io.valid)
-  io.C_valid := write_block_reg
+  io.C_valid := Mux(randFSM.io.rand_mux, randFSM.io.valid_rand, write_block_reg)
 
   // Control
   Ctrl.io.asso_len := io.ad_len
@@ -103,10 +117,10 @@ class ascon128RoCC2 extends Module {
   ToState.io.rate := rate_in
   ToState.io.capacity := MuxCap.io.capacity_out
 
-  Asconp.io.A := ToState.io.S
-  Asconp.io.typePer := Ctrl.io.type_per
-  Asconp.io.start := Ctrl.io.init_perm
-  Asconp.io.rst_per := Ctrl.io.rst_per
+  Asconp.io.A := Mux(random_mode, AState.io.state, ToState.io.S)
+  Asconp.io.typePer := Mux(random_mode, randFSM.io.type_per, Ctrl.io.type_per)
+  Asconp.io.start := Mux(random_mode, randFSM.io.init_per, Ctrl.io.init_perm)
+  Asconp.io.rst_per := Mux(random_mode, Ctrl.io.rst_per, false.B)
 
   TagGen.io.S_i := Asconp.io.S
   TagGen.io.key := Cat(io.Key(0), io.Key(1))
@@ -115,7 +129,7 @@ class ascon128RoCC2 extends Module {
   io.Tag(1) := TagGen.io.tag(63, 0)
   io.valid_tag := TagGen.io.valid
 
-  io.busy := Ctrl.io.busy
+  io.busy := Ctrl.io.busy || randFSM.io.busy
 
 
 
@@ -136,22 +150,39 @@ class ascon128RoCC2 extends Module {
   io.load_block := Ctrl.io.load_block
   io.cipher_stage := Ctrl.io.ciphering
 
-  // rANDUM
-  val State_Asconp = Reg(Vec(5, UInt(64.W)))
-  State_Asconp := Asconp.io.S
-  randFSM.io.seed := false.B
-  randFSM.io.rand := false.B
-  randFSM.io.busy_per := false.B
+  // Random
+  /// trivium
+  trivium.io.reset := false.B
+  trivium.io.K := "h8".U
+  trivium.io.iv := "h7".U
+  // Rando FSM
+  randFSM.io.rand := io.random
+  randFSM.io.seed := io.seed
+  randFSM.io.busy_per := Asconp.io.busy
 
-  // trivium.io.iv:= 0.U
-  // trivium.io.K := 0.U
+  randFSM.io.valid_per := Asconp.io.valid
+  randFSM.io.num_rand := Mux(io.random, io.m_len, 0.U)
+  randFSM.io.busy_write := io.write_busy
+  randFSM.io.valid_seed := trivium.io.valid
+  io.finish_rand := randFSM.io.finish
+  // randFSM.io.new_init := io.init
+
+  AState.io.seed := randFSM.io.seed_mux
+  AState.io.seed_valid := randFSM.io.seed_valid
+  AState.io.seed_value := trivium.io.Z
+  AState.io.new_state := Asconp.io.S
+  AState.io.valid_state := Asconp.io.valid && random_mode // random
+
+
+
+
   //KMU
-  kmu.io.key_in := 9.U
+  /*kmu.io.key_in := 9.U
   kmu.io.key_id := 0.U
   kmu.io.store_key := false.B
   kmu.io.get_key := false.B
   kmu.io.delete_key := false.B
-  kmu.io.get_master := false.B
+  kmu.io.get_master := false.B*/
 
   Ctrl.io.hash_written := io.hash_written
 

@@ -54,7 +54,6 @@ class AccelModuleImp(outer: AccelModule)(implicit p: Parameters) extends LazyRoC
   // Decode the instructions and initiate values
   when(io.cmd.fire()) { // cmd.fire() indicates a new instruction from the processor to the rocc
     resp_rd := io.cmd.bits.inst.rd
-    io.cmd.bits.inst.funct // with function7 we have 2^7 different instructions to implement
     when(io.cmd.bits.inst.funct === 0.U) {
       // Setup of the addr
       array_addr := io.cmd.bits.rs1

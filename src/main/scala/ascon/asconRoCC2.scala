@@ -5,7 +5,7 @@ import chisel3._
 import chisel3.util._
 import ascon.util._
 
-class asconRoCC2(r_c: Int, w_c: Int) extends Module {
+class asconRoCC2(r_c: Int, w_c: Int, withTrivium :Boolean) extends Module {
   val io = IO(new Bundle() {
     val m_len = Input(UInt(32.W))
     val ad_len = Input(UInt(32.W))
@@ -29,12 +29,14 @@ class asconRoCC2(r_c: Int, w_c: Int) extends Module {
     val Tag = Output(Vec(2, UInt(64.W)))
     val Hash = Output(Vec(4, UInt(64.W)))
     val valid_hash = Output(Bool())
+    val seed = Input(Bool())
+    val rand = Input(Bool())
   })
 
-  val Ascon = Module(new ascon128RoCC2)
+  val Ascon = Module(new ascon128RoCC2(withTrivium))
   val MemFSM = Module(new memFSM(r_c, w_c))
   val tag_reg = RegInit(Ascon.io.Tag)
-  when(Ascon.io.valid_tag){
+  when(Ascon.io.valid_tag) {
     tag_reg := Ascon.io.Tag
   }
 
@@ -48,6 +50,9 @@ class asconRoCC2(r_c: Int, w_c: Int) extends Module {
   Ascon.io.decrypt := io.decrypt
   Ascon.io.hash_mode := io.hash_mode
   Ascon.io.valid_ad := MemFSM.io.valid_ad
+  Ascon.io.random := io.rand
+  Ascon.io.seed := io.seed
+
   io.cipher_stage := Ascon.io.cipher_stage
   io.busy := Ascon.io.busy
   io.valid_tag := Ascon.io.valid_tag
@@ -66,11 +71,12 @@ class asconRoCC2(r_c: Int, w_c: Int) extends Module {
   MemFSM.io.write_block := Ascon.io.C_valid
   MemFSM.io.c_valid := Ascon.io.C_valid
   MemFSM.io.ciphering := Ascon.io.cipher_stage
-  MemFSM.io.init := io.init
+  MemFSM.io.init := io.init || io.rand
   MemFSM.io.valid := Ascon.io.valid_tag
   MemFSM.io.write_data := Ascon.io.C
   MemFSM.io.Data_A_in := io.AD
   MemFSM.io.Data_P_in := io.M
+  MemFSM.io.finish_rand := Ascon.io.finish_rand
   io.C := MemFSM.io.Data_out
 
 

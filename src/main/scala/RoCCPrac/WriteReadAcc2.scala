@@ -81,7 +81,7 @@ class RWImp2(outer: WriteReadAcc2)(implicit p: Parameters) extends LazyRoCCModul
   val valid_tag_reg = RegInit(false.B)
 
   ///////////ASCON Declaration ////////////////
-  val ASCON = Module(new ascon128RoCC2)
+  val ASCON = Module(new ascon128RoCC2(false))
 
   // Set nonce
   val nonce_addr = RegInit(0.U(32.W))

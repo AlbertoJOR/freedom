@@ -336,12 +336,12 @@ object ASCON {
       BigInt(0)
     )
     State = initialization(State, key, npub)
-    printState(State, "After init")
+    printState(State, "After init", debug)
 
 
     // Xor init
 
-    printState(State, "Xor key 2")
+    printState(State, "Xor key 2", debug)
     var adlen_aux = adlen
     var adindex = 0
     if (adlen_aux > 0) {
@@ -349,20 +349,20 @@ object ASCON {
         State(0) ^= ad(adindex)
         State = permutationa(State, 6)
         println( s"A block [$adindex]: " ++ ad(adindex).toString(16))
-        printState(State, s"Absorb AD [$adindex]")
+        printState(State, s"Absorb AD [$adindex]",debug)
 
         adindex += 1
         adlen_aux -= 8
       }
       State(0) ^= pad(ad(adindex), adlen_aux)
       println( s"Pad: " ++  pad(ad(adindex),adlen_aux).toString(16) )
-      printState(State, "Paded data")
+      printState(State, "Paded data", debug)
       State = permutationa(State, 6)
-      printState(State, "Paded round data")
+      printState(State, "Paded round data", debug)
     }
     // Domain separation
     State(4) ^= BigInt("0000000000000001", 16)
-    printState(State, "AD Domain Separartion")
+    printState(State, "AD Domain Separartion" ,debug)
     var clen_aux = clen
     var cindex = 0
     var c0 = BigInt("0000000000000000", 16);
@@ -373,23 +373,23 @@ object ASCON {
 
       State(0) = c0
       println( s"M block [$cindex]: " ++ dec(adindex).toString(16))
-      printState(State, s"Absorb C [$cindex]")
+      printState(State, s"Absorb C [$cindex]" , debug)
       State = permutationa(State, 6)
       cindex += 1
       clen_aux -= 8
     }
     // final block
-    printState(State, "before CPad")
+    printState(State, "before CPad", debug)
     c0 = trimC(c(cindex), clen_aux)
     dec(cindex) = trimM(c(cindex), State(0), clen_aux)
     State(0) = ClearBytes(State(0), clen_aux)
     State(0) = State(0) | c0
     State(0) ^= PadOnly1(clen_aux)
 
-    printState(State, "pad Plain")
+    printState(State, "pad Plain", debug)
 
     State = finalization(State, key)
-    printState(State, "fin")
+    printState(State, "fin", debug)
     cipherTextTag.Tag2(0) = State(3)
     cipherTextTag.Tag2(1) = State(4)
 

@@ -26,7 +26,7 @@ class memFSM(read_counter: Int, write_counter: Int) extends Module {
     val hash_valid = Input(Bool())
     val hash_mode = Input(Bool())
     val write_data = Input(UInt(64.W))
-
+    val finish_rand = Input(Bool())
   })
   val s_rst :: s_idle :: s_wait :: s_loading :: s_wirting :: Nil = Enum(5)
   val stateReg = RegInit(s_idle)
@@ -74,6 +74,12 @@ for (k <- 8 until 12) {
       }
     }
     is(s_wait) {
+      when(io.init) {
+        as_addr := 0.U
+        plain_addr := 4.U
+        ciph_addr := 8.U
+        valid_ad_reg := false.B
+      }
       when(io.load_block) {
         stateReg := s_loading
         valid_ad_reg := false.B
@@ -87,6 +93,8 @@ for (k <- 8 until 12) {
       }.elsewhen(io.hash_valid){
         stateReg := s_idle
         hash_written := true.B
+      }.elsewhen(io.finish_rand){
+        stateReg := s_idle
       }
       when(io.hash_mode && io.ciphering){
         valid_ad_reg := false.B

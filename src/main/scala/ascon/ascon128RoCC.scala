@@ -3,7 +3,7 @@ package ascon
 import ascon.permutation.PermutationPa
 import chisel3._
 import chisel3.util._
-import trivium._
+import rand._
 
 class ascon128RoCC extends Module {
   val io = IO(new Bundle() {
@@ -120,13 +120,13 @@ class ascon128RoCC extends Module {
   io.cipher_stage := Ctrl.io.ciphering
 
   // rANDUM
-  val State_Asconp = Reg(Vec(5, UInt(64.W)))
+  /*val State_Asconp = Reg(Vec(5, UInt(64.W)))
   State_Asconp := Asconp.io.S
   randFSM.io.seed := false.B
   randFSM.io.rand := false.B
   randFSM.io.busy_per := false.B
 
-  // trivium.io.iv:= 0.U
+*/  // trivium.io.iv:= 0.U
   // trivium.io.K := 0.U
   //KMU
   kmu.io.key_in := 9.U
