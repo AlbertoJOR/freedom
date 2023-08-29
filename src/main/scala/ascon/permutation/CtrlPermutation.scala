@@ -5,20 +5,8 @@ import chisel3.util._
 import chisel3.util.{is, switch}
 
 
-class CtrlPermutation extends Module {
-  val io = IO(new Bundle() {
-    val start = Input(Bool())
-    val typePer = Input(UInt(2.W))
-    val ready = Output(Bool())
-    val valid = Output(Bool())
-    val selIn = Output(Bool())
-    val busy = Output(Bool())
-    val round = Output(UInt(4.W))
-    val rst_per = Input(Bool())
-
-  })
-
-  val sRst :: sWait :: sEnc :: Nil = Enum(3)
+ class CtrlPermutation extends Module with CtrlPermutationInter {
+   val sRst :: sWait :: sEnc :: Nil = Enum(3)
 
 
   // Initial State when reset+
@@ -74,8 +62,8 @@ class CtrlPermutation extends Module {
       startReg := false.B
       encWire := true.B
       selInReg := false.B
-      roundReg := roundReg + 2.U // 2 rolled permutation
-      when(roundReg >= 10.U) {
+      roundReg := roundReg + 1.U // 1 permutation
+      when(roundReg >= 11.U) {
         stateReg := sWait
         validReg := true.B
 

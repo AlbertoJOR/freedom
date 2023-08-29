@@ -7,11 +7,11 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.rocket._
 import freechips.rocketchip.tile._
 
-class WriteReadAcc3(opcodes: OpcodeSet)(implicit p: Parameters) extends LazyRoCC(opcodes) {
-  override lazy val module = new RWImp3(this)
+class WriteReadAcc3(opcodes: OpcodeSet, unrolled :Int)(implicit p: Parameters) extends LazyRoCC(opcodes) {
+  override lazy val module = new RWImp3(this, unrolled)
 }
 
-class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModuleImp(outer)
+class RWImp3(outer: WriteReadAcc3, unrolled: Int)(implicit p: Parameters) extends LazyRoCCModuleImp(outer)
   with HasCoreParameters {
   // The parts of the command are as follows
   // inst  - the parts of the instruction itself
@@ -64,6 +64,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val H_Init = Function === "h32".U
   val R_Seed = Function === "h41".U
   val R_Rand = Function === "h42".U
+  val C_count = Function === "h61".U
 
 
 
@@ -91,7 +92,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val valid_tag_reg = RegInit(false.B)
 
   ///////////ASCON Declaration ////////////////
-  val ASCON = Module(new ascon128RoCC2(true))
+  val ASCON = Module(new ascon128RoCC2(true, unrolled))
 
   /// TAG Counter //
   val nonce_value = RegInit("h11111111222222223333333344444444".U(128.W))
@@ -119,6 +120,10 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
   val hash_written = RegInit(false.B)
   val random = RegInit(false.B)
   val seed = RegInit(false.B)
+
+  // Counter //
+  val COUNTER = RegInit(0.U(32.W))
+  COUNTER := COUNTER + 1.U
   //val random_mode = RegInit(false.B)
   /*  val counter1 = RegInit(0.U(8.W))
     val counter2 = RegInit(0.U(8.W))
@@ -214,6 +219,9 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
       plain_text_len := io.cmd.bits.rs2
       resp_valid := false.B
       state := s_wait
+    }.elsewhen(C_count) {
+      resp_valid := true.B
+      resp_rd_data := COUNTER
     }.otherwise {
       state := s_end
       resp_valid := true.B
@@ -412,6 +420,8 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         resp_rd_data := resp_rd_data | "h40000".U
         when(decrypt_mode) {
           state := s_comp_tag
+          tag_written := true.B
+          valid_tag_reg := false.B
           tags_equal := tag_value === Cat(vec_blocks(0), vec_blocks(1), vec_blocks(2), vec_blocks(3))
         }.otherwise {
           state := s_mem_write_req
@@ -462,7 +472,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
         when(block_counter < Mux(valid_tag_reg, 4.U, 2.U)) {
           state := s_mem_write_req
         }.otherwise {
-          when(valid_tag_reg) {
+          when(valid_tag_reg && !decrypt_mode) {
             state := s_end
             tag_written := true.B
             //resp_rd_data := Cat(counter1, counter2, counter4, counter5)
@@ -476,6 +486,7 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
     }
     is(s_comp_tag) {
       state := s_end
+      tag_written := false.B
       when(tags_equal) {
         resp_rd_data := "hffffffff".U
         // resp_rd_data := Cat(tag_value(103, 96), tag_value(71,64),tag_value(39,32),tag_value(7,0))
@@ -514,10 +525,10 @@ class RWImp3(outer: WriteReadAcc3)(implicit p: Parameters) extends LazyRoCCModul
 
 }
 
-class WithRWRoCC3 extends Config((site, here, up) => {
+class WithRWRoCC3 (unrolled :Int)extends Config((site, here, up) => {
   case BuildRoCC => Seq(
     (p: Parameters) => {
-      val Accel = LazyModule(new WriteReadAcc3(OpcodeSet.custom0)(p))
+      val Accel = LazyModule(new WriteReadAcc3(OpcodeSet.custom0, unrolled)(p))
       Accel
     }
   )

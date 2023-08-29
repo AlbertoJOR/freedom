@@ -390,8 +390,8 @@ class RWConfigxmem3 extends Config(
     new WithL1ICacheWays(2) ++
     new WithL1ICacheSets(256) ++
     new WithDefaultBtb ++
-    new WithRWRoCC3 ++
-    new TinyConfigxmem
+    new WithRWRoCC3(3) ++
+    new TinyConfig
 )
 
 class RWxmem3 extends Config(

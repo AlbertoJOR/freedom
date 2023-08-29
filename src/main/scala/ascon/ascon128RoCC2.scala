@@ -1,11 +1,11 @@
 package ascon
 
-import ascon.permutation.PermutationPa
+import ascon.permutation._
 import chisel3._
 import chisel3.util._
 import rand._
 
-class ascon128RoCC2(withTrivium: Boolean) extends Module {
+class ascon128RoCC2(withTrivium: Boolean, unrolled: Int = 1) extends Module {
   val io = IO(new Bundle() {
     val m_len = Input(UInt(32.W))
     val ad_len = Input(UInt(32.W))
@@ -50,9 +50,17 @@ class ascon128RoCC2(withTrivium: Boolean) extends Module {
   val ToState = Module(new Separator)
   val TagGen = Module(new RateCapacityTag)
   val Ctrl = Module(new asconCtrlRocc2)
-  val Asconp = Module(new PermutationPa)
+  //val Asconp = Module(new PermutationPa)
   val HashReg = RegInit(VecInit(Seq.fill(4)(0.U(64.W))))
   val write_block_reg = RegInit(false.B)
+  // Unrolled //
+  val Asconp = if(unrolled == 3) {
+    Module(new PermutationPa3)
+  } else if(unrolled == 2){
+    Module(new PermutationPa2)
+  } else{
+    Module(new PermutationPa)
+  }
   // RANDOM ///
   val trivium = if (withTrivium) {
     Module(new trivium)
@@ -120,7 +128,8 @@ class ascon128RoCC2(withTrivium: Boolean) extends Module {
   Asconp.io.A := Mux(random_mode, AState.io.state, ToState.io.S)
   Asconp.io.typePer := Mux(random_mode, randFSM.io.type_per, Ctrl.io.type_per)
   Asconp.io.start := Mux(random_mode, randFSM.io.init_per, Ctrl.io.init_perm)
-  Asconp.io.rst_per := Mux(random_mode, Ctrl.io.rst_per, false.B)
+  Asconp.io.rst_per := Ctrl.io.rst_per
+  // Asconp.io.rst_per := Mux(random_mode, Ctrl.io.rst_per, false.B)
 
   TagGen.io.S_i := Asconp.io.S
   TagGen.io.key := Cat(io.Key(0), io.Key(1))

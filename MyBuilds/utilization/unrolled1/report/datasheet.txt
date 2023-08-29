@@ -1,0 +1,228 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2022.2 (lin64) Build 3671981 Fri Oct 14 04:59:54 MDT 2022
+| Date         : Tue Aug 29 12:37:56 2023
+| Host         : GF76 running 64-bit Ubuntu 22.04.3 LTS
+| Command      : report_datasheet -file /home/albertojor/GitHub/Chisel/Tesis/freedom/builds/e300artydevkit/obj/report/datasheet.txt
+| Design       : E300ArtyDevKitFPGAChip
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+------------------------------------------------------------------------------------------------------------------------------------
+
+Data Sheet Report
+
+Input Ports Setup/Hold
+
+------------+--------------+---------+-------+---------------+---------+---------------+---------+-----------------+
+Reference   | Input        | IO Reg  | Delay |     Setup(ns) | Process |      Hold(ns) | Process | Internal        |
+Clock       | Port         | Type    | Type  | to Clk (Edge) | Corner  | to Clk (Edge) | Corner  | Clock           |
+------------+--------------+---------+-------+---------------+---------+---------------+---------+-----------------+
+CLK100MHZ   | ck_rst       | FDRE    | -     |     8.213 (r) | SLOW    |    -2.875 (r) | FAST    | clk_out1_mmcm   |
+CLK100MHZ   | jd_6         | FDRE    | -     |     7.794 (r) | SLOW    |    -2.731 (r) | FAST    | clk_out1_mmcm   |
+CLK100MHZ   | btn_0        | SRL16E  | -     |     7.037 (r) | SLOW    |    -2.407 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | btn_1        | SRL16E  | -     |     6.440 (r) | SLOW    |    -2.142 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | btn_2        | SRL16E  | -     |     6.785 (r) | SLOW    |    -2.280 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_0      | SRL16E  | -     |     9.040 (r) | SLOW    |    -3.348 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_2      | SRL16E  | -     |     8.731 (r) | SLOW    |    -3.074 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_4      | SRL16E  | -     |     8.138 (r) | SLOW    |    -2.852 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_7      | SRL16E  | -     |     8.929 (r) | SLOW    |    -3.183 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_8      | SRL16E  | -     |     8.454 (r) | SLOW    |    -2.882 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_12     | SRL16E  | -     |     8.390 (r) | SLOW    |    -2.979 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_13     | SRL16E  | -     |     8.884 (r) | SLOW    |    -3.074 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_15     | SRL16E  | -     |     7.359 (r) | SLOW    |    -2.477 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_16     | SRL16E  | -     |     7.089 (r) | SLOW    |    -2.298 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_miso      | SRL16E  | -     |     8.177 (r) | SLOW    |    -3.003 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_mosi      | SRL16E  | -     |     8.687 (r) | SLOW    |    -3.154 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_sck       | SRL16E  | -     |     8.500 (r) | SLOW    |    -3.056 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_ss        | SRL16E  | -     |     8.488 (r) | SLOW    |    -3.096 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ja_0         | SRL16E  | -     |     6.988 (r) | SLOW    |    -2.343 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ja_1         | SRL16E  | -     |     6.514 (r) | SLOW    |    -2.127 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led0_b       | SRL16E  | -     |     8.589 (r) | SLOW    |    -3.200 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led0_g       | SRL16E  | -     |     8.442 (r) | SLOW    |    -3.105 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led0_r       | SRL16E  | -     |     8.518 (r) | SLOW    |    -3.109 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led1_b       | SRL16E  | -     |     8.611 (r) | SLOW    |    -3.090 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led1_g       | SRL16E  | -     |     8.116 (r) | SLOW    |    -2.905 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led1_r       | SRL16E  | -     |     7.900 (r) | SLOW    |    -2.858 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led2_b       | SRL16E  | -     |     7.597 (r) | SLOW    |    -2.756 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led2_g       | SRL16E  | -     |     8.086 (r) | SLOW    |    -2.933 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led2_r       | SRL16E  | -     |     8.175 (r) | SLOW    |    -2.956 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led_3        | SRL16E  | -     |     9.247 (r) | SLOW    |    -3.373 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_0    | SRL16E  | -     |     6.691 (r) | SLOW    |    -2.233 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_1    | SRL16E  | -     |     7.585 (r) | SLOW    |    -2.580 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_2    | SRL16E  | -     |     7.168 (r) | SLOW    |    -2.401 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_3    | SRL16E  | -     |     6.655 (r) | SLOW    |    -2.217 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | sw_3         | SRL16E  | -     |     6.580 (r) | SLOW    |    -2.170 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | uart_rxd_out | SRL16E  | -     |     7.014 (r) | SLOW    |    -2.294 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | uart_txd_in  | SRL16E  | -     |     6.483 (r) | SLOW    |    -2.147 (r) | FAST    | clk_out3_mmcm   |
+JTCK        | jd_4         | FDRE    | -     |     0.461 (r) | FAST    |     2.289 (r) | SLOW    |                 |
+JTCK        | jd_5         | FDPE    | -     |     0.545 (r) | FAST    |     2.244 (r) | SLOW    |                 |
+sys_clk_pin | ck_rst       | FDRE    | -     |     8.206 (r) | SLOW    |    -2.875 (r) | FAST    | clk_out1_mmcm_1 |
+sys_clk_pin | jd_6         | FDRE    | -     |     7.787 (r) | SLOW    |    -2.731 (r) | FAST    | clk_out1_mmcm_1 |
+sys_clk_pin | btn_0        | SRL16E  | -     |     7.035 (r) | SLOW    |    -2.407 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | btn_1        | SRL16E  | -     |     6.438 (r) | SLOW    |    -2.142 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | btn_2        | SRL16E  | -     |     6.783 (r) | SLOW    |    -2.280 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_0      | SRL16E  | -     |     9.038 (r) | SLOW    |    -3.348 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_2      | SRL16E  | -     |     8.729 (r) | SLOW    |    -3.074 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_4      | SRL16E  | -     |     8.136 (r) | SLOW    |    -2.852 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_7      | SRL16E  | -     |     8.927 (r) | SLOW    |    -3.183 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_8      | SRL16E  | -     |     8.452 (r) | SLOW    |    -2.882 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_12     | SRL16E  | -     |     8.389 (r) | SLOW    |    -2.979 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_13     | SRL16E  | -     |     8.883 (r) | SLOW    |    -3.074 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_15     | SRL16E  | -     |     7.357 (r) | SLOW    |    -2.477 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_16     | SRL16E  | -     |     7.087 (r) | SLOW    |    -2.298 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_miso      | SRL16E  | -     |     8.175 (r) | SLOW    |    -3.003 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_mosi      | SRL16E  | -     |     8.685 (r) | SLOW    |    -3.154 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_sck       | SRL16E  | -     |     8.498 (r) | SLOW    |    -3.056 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_ss        | SRL16E  | -     |     8.486 (r) | SLOW    |    -3.096 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ja_0         | SRL16E  | -     |     6.986 (r) | SLOW    |    -2.343 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ja_1         | SRL16E  | -     |     6.512 (r) | SLOW    |    -2.127 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led0_b       | SRL16E  | -     |     8.587 (r) | SLOW    |    -3.200 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led0_g       | SRL16E  | -     |     8.440 (r) | SLOW    |    -3.105 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led0_r       | SRL16E  | -     |     8.516 (r) | SLOW    |    -3.109 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led1_b       | SRL16E  | -     |     8.609 (r) | SLOW    |    -3.090 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led1_g       | SRL16E  | -     |     8.114 (r) | SLOW    |    -2.905 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led1_r       | SRL16E  | -     |     7.898 (r) | SLOW    |    -2.858 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led2_b       | SRL16E  | -     |     7.595 (r) | SLOW    |    -2.756 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led2_g       | SRL16E  | -     |     8.084 (r) | SLOW    |    -2.933 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led2_r       | SRL16E  | -     |     8.173 (r) | SLOW    |    -2.956 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led_3        | SRL16E  | -     |     9.245 (r) | SLOW    |    -3.373 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_0    | SRL16E  | -     |     6.689 (r) | SLOW    |    -2.233 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_1    | SRL16E  | -     |     7.583 (r) | SLOW    |    -2.580 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_2    | SRL16E  | -     |     7.166 (r) | SLOW    |    -2.401 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_3    | SRL16E  | -     |     6.654 (r) | SLOW    |    -2.217 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | sw_3         | SRL16E  | -     |     6.578 (r) | SLOW    |    -2.170 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | uart_rxd_out | SRL16E  | -     |     7.012 (r) | SLOW    |    -2.294 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | uart_txd_in  | SRL16E  | -     |     6.481 (r) | SLOW    |    -2.147 (r) | FAST    | clk_out3_mmcm_1 |
+------------+--------------+---------+-------+---------------+---------+---------------+---------+-----------------+
+
+
+Output Ports Clock-to-out
+
+------------+--------------+-----------+-------+----------------+---------+----------------+---------+-----------------+
+Reference   | Output       | IO Reg    | Delay | Max Clk (Edge) | Process | Min Clk (Edge) | Process | Internal        |
+Clock       | Port         | Type      | Type  |    to port(ns) | Corner  |    to port(ns) | Corner  | Clock           |
+------------+--------------+-----------+-------+----------------+---------+----------------+---------+-----------------+
+CLK100MHZ   | btn_0        | FDRE      | -     |      8.511 (r) | SLOW    |      1.556 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | btn_1        | FDRE      | -     |      8.820 (r) | SLOW    |      1.276 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | btn_2        | FDRE      | -     |      8.618 (r) | SLOW    |      1.289 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_0      | FDRE      | -     |     12.219 (r) | SLOW    |      2.450 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_2      | FDRE      | -     |      9.592 (r) | SLOW    |      2.196 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_3      | FDRE      | -     |     12.380 (r) | SLOW    |      3.122 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_4      | FDRE      | -     |      9.954 (r) | SLOW    |      1.906 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_5      | FDRE      | -     |     13.184 (r) | SLOW    |      2.828 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_6      | FDRE      | -     |     11.216 (r) | SLOW    |      2.148 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_7      | FDRE      | -     |     10.141 (r) | SLOW    |      2.352 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_8      | FDRE      | -     |     10.205 (r) | SLOW    |      1.941 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_9      | FDSE      | -     |     14.480 (r) | SLOW    |      2.867 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_10     | FDRE      | -     |     15.232 (r) | SLOW    |      4.225 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_11     | FDRE      | -     |     14.556 (r) | SLOW    |      2.852 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_12     | FDRE      | -     |      9.999 (r) | SLOW    |      2.019 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_13     | FDRE      | -     |     10.931 (r) | SLOW    |      1.972 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_15     | FDRE      | -     |      9.692 (r) | SLOW    |      1.747 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_16     | FDRE      | -     |     10.128 (r) | SLOW    |      1.717 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_17     | FDRE      | -     |      9.948 (r) | SLOW    |      1.706 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_18     | FDRE      | -     |     10.308 (r) | SLOW    |      1.639 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_io_19     | FDRE      | -     |     10.885 (r) | SLOW    |      1.772 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_miso      | FDRE      | -     |     10.866 (r) | SLOW    |      2.179 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_mosi      | FDRE      | -     |     10.914 (r) | SLOW    |      2.185 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_sck       | FDRE      | -     |      9.924 (r) | SLOW    |      2.176 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ck_ss        | FDRE      | -     |      9.993 (r) | SLOW    |      2.133 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ja_0         | FDCE      | -     |      8.143 (r) | SLOW    |      1.345 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | ja_1         | FDCE      | -     |      7.996 (r) | SLOW    |      1.372 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led0_b       | FDRE      | -     |     11.067 (r) | SLOW    |      2.313 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led0_g       | FDRE      | -     |     11.888 (r) | SLOW    |      2.278 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led0_r       | FDSE      | -     |     10.715 (r) | SLOW    |      2.105 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led1_b       | FDRE      | -     |     10.297 (r) | SLOW    |      1.962 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led1_g       | FDRE      | -     |     10.246 (r) | SLOW    |      2.151 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led1_r       | FDRE      | -     |     10.355 (r) | SLOW    |      2.104 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led2_b       | FDRE      | -     |     11.797 (r) | SLOW    |      2.165 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led2_g       | FDRE      | -     |     11.494 (r) | SLOW    |      2.233 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led2_r       | FDRE      | -     |     11.258 (r) | SLOW    |      2.272 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | led_3        | FDCE      | -     |     11.110 (r) | SLOW    |      2.862 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_cs      | FDRE      | -     |      7.512 (r) | SLOW    |      1.574 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_0    | FDRE      | -     |      8.430 (r) | SLOW    |      0.285 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_1    | FDRE      | -     |      8.613 (r) | SLOW    |      0.295 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_2    | FDRE      | -     |      9.252 (r) | SLOW    |      0.288 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_dq_3    | FDRE      | -     |      9.399 (r) | SLOW    |      0.286 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | qspi_sck     | FDRE (IO) | -     |      3.758 (r) | SLOW    |      0.284 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | uart_rxd_out | FDRE      | -     |      8.193 (r) | SLOW    |      1.298 (r) | FAST    | clk_out3_mmcm   |
+CLK100MHZ   | uart_txd_in  | FDRE      | -     |      8.913 (r) | SLOW    |      1.478 (r) | FAST    | clk_out3_mmcm   |
+JTCK        | jd_0         | FDRE      | -     |     11.751 (f) | SLOW    |      3.389 (f) | FAST    |                 |
+sys_clk_pin | btn_0        | FDRE      | -     |      8.509 (r) | SLOW    |      1.558 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | btn_1        | FDRE      | -     |      8.818 (r) | SLOW    |      1.278 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | btn_2        | FDRE      | -     |      8.616 (r) | SLOW    |      1.291 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_0      | FDRE      | -     |     12.217 (r) | SLOW    |      2.452 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_2      | FDRE      | -     |      9.590 (r) | SLOW    |      2.198 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_3      | FDRE      | -     |     12.378 (r) | SLOW    |      3.124 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_4      | FDRE      | -     |      9.952 (r) | SLOW    |      1.908 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_5      | FDRE      | -     |     13.182 (r) | SLOW    |      2.830 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_6      | FDRE      | -     |     11.214 (r) | SLOW    |      2.150 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_7      | FDRE      | -     |     10.139 (r) | SLOW    |      2.353 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_8      | FDRE      | -     |     10.203 (r) | SLOW    |      1.943 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_9      | FDSE      | -     |     14.479 (r) | SLOW    |      2.869 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_10     | FDRE      | -     |     15.230 (r) | SLOW    |      4.227 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_11     | FDRE      | -     |     14.554 (r) | SLOW    |      2.854 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_12     | FDRE      | -     |      9.997 (r) | SLOW    |      2.021 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_13     | FDRE      | -     |     10.929 (r) | SLOW    |      1.973 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_15     | FDRE      | -     |      9.690 (r) | SLOW    |      1.749 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_16     | FDRE      | -     |     10.126 (r) | SLOW    |      1.719 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_17     | FDRE      | -     |      9.946 (r) | SLOW    |      1.708 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_18     | FDRE      | -     |     10.306 (r) | SLOW    |      1.641 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_io_19     | FDRE      | -     |     10.883 (r) | SLOW    |      1.774 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_miso      | FDRE      | -     |     10.864 (r) | SLOW    |      2.181 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_mosi      | FDRE      | -     |     10.912 (r) | SLOW    |      2.187 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_sck       | FDRE      | -     |      9.922 (r) | SLOW    |      2.177 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ck_ss        | FDRE      | -     |      9.991 (r) | SLOW    |      2.135 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ja_0         | FDCE      | -     |      8.141 (r) | SLOW    |      1.346 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | ja_1         | FDCE      | -     |      7.994 (r) | SLOW    |      1.374 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led0_b       | FDRE      | -     |     11.065 (r) | SLOW    |      2.315 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led0_g       | FDRE      | -     |     11.886 (r) | SLOW    |      2.280 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led0_r       | FDSE      | -     |     10.713 (r) | SLOW    |      2.107 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led1_b       | FDRE      | -     |     10.295 (r) | SLOW    |      1.964 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led1_g       | FDRE      | -     |     10.244 (r) | SLOW    |      2.153 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led1_r       | FDRE      | -     |     10.353 (r) | SLOW    |      2.106 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led2_b       | FDRE      | -     |     11.795 (r) | SLOW    |      2.167 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led2_g       | FDRE      | -     |     11.492 (r) | SLOW    |      2.235 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led2_r       | FDRE      | -     |     11.256 (r) | SLOW    |      2.274 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | led_3        | FDCE      | -     |     11.108 (r) | SLOW    |      2.864 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_cs      | FDRE      | -     |      7.510 (r) | SLOW    |      1.576 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_0    | FDRE      | -     |      8.428 (r) | SLOW    |      0.287 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_1    | FDRE      | -     |      8.612 (r) | SLOW    |      0.297 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_2    | FDRE      | -     |      9.250 (r) | SLOW    |      0.290 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_dq_3    | FDRE      | -     |      9.397 (r) | SLOW    |      0.288 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | qspi_sck     | FDRE (IO) | -     |      3.756 (r) | SLOW    |      0.286 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | uart_rxd_out | FDRE      | -     |      8.191 (r) | SLOW    |      1.300 (r) | FAST    | clk_out3_mmcm_1 |
+sys_clk_pin | uart_txd_in  | FDRE      | -     |      8.911 (r) | SLOW    |      1.480 (r) | FAST    | clk_out3_mmcm_1 |
+------------+--------------+-----------+-------+----------------+---------+----------------+---------+-----------------+
+
+
+Combinational Delays
+
+-------+-------+-----------+---------+-----------+---------+
+From   | To    |   Max     | Process |   Min     | Process |
+Port   | Port  | Delay(ns) | Corner  | Delay(ns) | Corner  |
+-------+-------+-----------+---------+-----------+---------+
+btn_3  | led_2 |    11.842 | SLOW    |     4.061 | FAST    |
+ck_rst | led_0 |     7.759 | SLOW    |     2.290 | FAST    |
+jd_6   | led_1 |     7.543 | SLOW    |     2.090 | FAST    |
+-------+-------+-----------+---------+-----------+---------+
+
+
+Setup between Clocks
+
+------------+-------------+---------------+---------+---------------+---------+---------------+---------+---------------+---------+
+Source      | Destination |  Src:Rise     | Process |  Src:Rise     | Process |  Src:Fall     | Process |  Src:Fall     | Process |
+Clock       | Clock       | Dest:Rise(ns) | Corner  | Dest:Fall(ns) | Corner  | Dest:Rise(ns) | Corner  | Dest:Fall(ns) | Corner  |
+------------+-------------+---------------+---------+---------------+---------+---------------+---------+---------------+---------+
+CLK100MHZ   | CLK100MHZ   |        20.496 | SLOW    |               |         |               |         |               |         |
+JTCK        | CLK100MHZ   |        10.805 | SLOW    |               |         |               |         |               |         |
+sys_clk_pin | CLK100MHZ   |        20.496 | SLOW    |               |         |               |         |               |         |
+CLK100MHZ   | JTCK        |        -0.631 | FAST    |               |         |               |         |               |         |
+JTCK        | JTCK        |         7.516 | SLOW    |         3.227 | SLOW    |         5.546 | SLOW    |         3.358 | SLOW    |
+sys_clk_pin | JTCK        |        -0.633 | FAST    |               |         |               |         |               |         |
+CLK100MHZ   | sys_clk_pin |        20.496 | SLOW    |               |         |               |         |               |         |
+JTCK        | sys_clk_pin |        10.804 | SLOW    |               |         |               |         |               |         |
+sys_clk_pin | sys_clk_pin |        20.494 | SLOW    |               |         |               |         |               |         |
+------------+-------------+---------------+---------+---------------+---------+---------------+---------+---------------+---------+
+
+

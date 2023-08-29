@@ -5,7 +5,7 @@ import chisel3._
 import chisel3.util._
 import ascon.util._
 
-class asconRoCC2(r_c: Int, w_c: Int, withTrivium :Boolean) extends Module {
+class asconRoCC2(r_c: Int, w_c: Int, withTrivium :Boolean, unrolled :Int = 1) extends Module {
   val io = IO(new Bundle() {
     val m_len = Input(UInt(32.W))
     val ad_len = Input(UInt(32.W))
@@ -33,7 +33,7 @@ class asconRoCC2(r_c: Int, w_c: Int, withTrivium :Boolean) extends Module {
     val rand = Input(Bool())
   })
 
-  val Ascon = Module(new ascon128RoCC2(withTrivium))
+  val Ascon = Module(new ascon128RoCC2(withTrivium, unrolled))
   val MemFSM = Module(new memFSM(r_c, w_c))
   val tag_reg = RegInit(Ascon.io.Tag)
   when(Ascon.io.valid_tag) {

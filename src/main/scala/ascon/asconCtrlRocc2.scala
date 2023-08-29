@@ -166,9 +166,8 @@ class asconCtrlRocc2 extends Module {
 
     }
     is(s_init) {
-      when(io.busy_per) {
-        init_perm_reg := false.B
-      }.elsewhen(io.valid_per) {
+      init_perm_reg := false.B
+      when(io.valid_per && !io.busy_per) {
         // Add key
         c_capacity_mux_reg := Mux(io.hash_mode, "b10001".U, "b01000".U)
         stateReg := Mux(io.hash_mode, s_m_absorb, s_ad)
